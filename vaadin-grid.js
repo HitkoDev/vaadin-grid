@@ -1,5 +1,5 @@
 import '../@polymer/polymer.js';
-import { IronResizableBehavior } from '../iron-resizable-behavior/iron-resizable-behavior.js';
+import { IronResizableBehavior } from '../@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import './vaadin-grid-table.js';
 import './vaadin-grid-column.js';
 import './vaadin-grid-active-item-behavior.js';
@@ -12,7 +12,7 @@ import './vaadin-grid-sort-behavior.js';
 import './vaadin-grid-filter-behavior.js';
 import './vaadin-grid-column-reordering-behavior.js';
 import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
-import { IronA11yKeysBehavior } from '../iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
+import { IronA11yKeysBehavior } from '../@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
 import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
 Polymer({
   _template: `

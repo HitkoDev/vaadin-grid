@@ -1,5 +1,5 @@
-import { IronA11yKeysBehavior } from '../iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
-import { IronA11yAnnouncer } from '../iron-a11y-announcer/iron-a11y-announcer.js';
+import { IronA11yKeysBehavior } from '../@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
+import { IronA11yAnnouncer } from '../@polymer/iron-a11y-announcer/iron-a11y-announcer.js';
 import { Element } from '../@polymer/polymer-element.js';
 import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
 const $_documentContainer = document.createElement('div');

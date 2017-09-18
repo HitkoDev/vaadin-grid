@@ -1,5 +1,5 @@
 import '../@polymer/polymer.js';
-import '../iron-resizable-behavior/iron-resizable-behavior.js';
+import '../@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import './vaadin-grid-active-item-behavior.js';
 import './vaadin-grid-table-scroll-behavior.js';
 import './vaadin-grid-sizer.js';
