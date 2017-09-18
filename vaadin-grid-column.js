@@ -1,7 +1,7 @@
 import '../@polymer/polymer/polymer.js';
 import './vaadin-grid-templatizer.js';
 import { dom } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
-import { Element } from '../@polymer/polymer-element.js';
+import { Element } from '../@polymer/polymer/polymer-element.js';
 import { FlattenedNodesObserver } from '../@polymer/polymer/lib/utils/flattened-nodes-observer.js';
 import { Polymer } from '../@polymer/polymer/lib/legacy/polymer-fn.js';
 window.vaadin = window.vaadin || {};

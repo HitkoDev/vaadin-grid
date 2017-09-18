@@ -1,4 +1,4 @@
-import { Element } from '../@polymer/polymer-element.js';
+import { Element } from '../@polymer/polymer/polymer-element.js';
 import { Settings } from '../@polymer/polymer/lib/utils/settings.js';
 import { dom } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
 window.vaadin = window.vaadin || {};

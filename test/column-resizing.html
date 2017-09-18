@@ -52,7 +52,7 @@
   <script type="module">
     import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-column-group.js'; import { flush as flush$0, dom
     } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Settings } from '../../@polymer/polymer/lib/utils/settings.js';
-    import { Base } from '../../@polymer/polymer/polymer.js'; import { Element } from '../../@polymer/polymer-element.js';
+    import { Base } from '../../@polymer/polymer/polymer.js'; import { Element } from '../../@polymer/polymer/polymer-element.js';
     describe('column resizing', function() { var grid, headerCells, handle; beforeEach(function(done) { // The before each
     block times out in CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('default'); grid.dataProvider = infiniteDataProvider;
     flush$0(); headerCells = getRowCells(getRows(grid.$.header)[0]); handle = headerCells[0]._resizeHandle; animationFrameFlush(done);

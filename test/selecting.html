@@ -53,8 +53,8 @@
   </test-fixture>
   <script type="module">
     import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-selection-column.js'; import '../vaadin-grid-filter.js';
-    import '../vaadin-grid-column-group.js'; import { Element } from '../../@polymer/polymer-element.js'; import { flush
-    as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Base } from '../../@polymer/polymer/polymer.js';
+    import '../vaadin-grid-column-group.js'; import { Element } from '../../@polymer/polymer/polymer-element.js'; import
+    { flush as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Base } from '../../@polymer/polymer/polymer.js';
     var grid; var rows; var cachedItems; describe('selection', function() { beforeEach(function() { // The before each block
     times out in CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('default'); if (Element) { Array.prototype
     .forEach.call(grid.querySelectorAll('vaadin-grid-column, vaadin-grid-column-group'), function(col) { col._templateObserver.flush();

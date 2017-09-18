@@ -43,7 +43,7 @@
   </test-fixture>
   <script type="module">
     import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-column-group.js'; import { dom, flush as flush$0
-    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer-element.js';
+    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer/polymer-element.js';
     describe('column', function() { var container, column, grid; beforeEach(function(done) { // The before each block times
     out in CI with Firefox on Polymer 2 this.timeout(30000); container = fixture('grid'); grid = container.$.grid; grid.dataProvider
     = infiniteDataProvider; column = dom(grid).querySelector('vaadin-grid-column'); flush(done); }); describe('properties',

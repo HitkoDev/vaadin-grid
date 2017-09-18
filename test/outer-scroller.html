@@ -53,8 +53,8 @@
     </template>
   </test-fixture>
   <script type="module">
-    import './helpers.js'; import '../vaadin-grid.js'; import { Element } from '../../@polymer/polymer-element.js'; import {
-    Base } from '../../@polymer/polymer/polymer.js'; import { flush as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js';
+    import './helpers.js'; import '../vaadin-grid.js'; import { Element } from '../../@polymer/polymer/polymer-element.js'; import
+    { Base } from '../../@polymer/polymer/polymer.js'; import { flush as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js';
     var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; function wheel(target, deltaX, deltaY, ctrlKey)
     { var e = new CustomEvent('wheel', {bubbles: true, cancelable: true}); e.deltaX = deltaX; e.deltaY = deltaY; e.ctrlKey
     = ctrlKey; target.dispatchEvent(e); return e; } describe('outer scroller', function() { var grid; var scroller; var outerScroller;

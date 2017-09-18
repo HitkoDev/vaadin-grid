@@ -65,22 +65,23 @@
     </template>
   </test-fixture>
   <script type="module">
-    import './helpers.js'; import '../vaadin-grid.js'; import { Element } from '../../@polymer/polymer-element.js'; import {
-    flush as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; describe('rows', function() { var grid, scroller,
-    header, rows, defaultHeight, wrappers; var dataProviderDelay = 200; function init(fixtureName, cb) { grid = fixture(fixtureName);
-    if (Element) { flushColumns(grid); } listenOnce(grid, 'items-assigned', function() { flush$0(); rows = getRows(grid.$.items);
-    defaultHeight = getRows(header)[0].clientHeight; if (grid._observer.flush) { grid._observer.flush(); } wrappers = getRowCells(rows[0]).map(function(cell)
-    { return getCellContent(cell); }); cb(); }); scroller = grid.$.scroller; header = grid.$.header; grid.dataProvider =
-    function(info, callback) { var startIndex = info.pageSize * info.page; callback(buildDataSet(startIndex + info.pageSize).splice(startIndex));
-    grid.fire('items-assigned'); }; } beforeEach(function() { this.currentTest.timeout(30000); }); it('should have higher
-    wrappers on each row cell', function(done) { init('two-columns', function() { wrappers[0].style.height = wrappers[0].clientHeight
-    * 2 + 'px'; flush(function() { expect(wrappers[1].clientHeight).to.equal(wrappers[0].clientHeight); done(); }); }); });
-    it('should not misalign on resize (wheel)', function(done) { init('default-content', function() { scrollToEnd(grid);
-    // Simulate a wheel event that doesn't cause a scroll event var e = new CustomEvent('wheel', {bubbles: true}); e.deltaY
-    = -100; e.deltaX = 0; scroller.$.table.dispatchEvent(e); // Simulate a (window) resize grid.style.width = '200px'; scroller._resizeHandler();
-    expect(header.getBoundingClientRect().top).to.be.closeTo(scroller.getBoundingClientRect().top, 1); done(); }); }); it('should
-    update height when hiding columns', function(done) { init('two-columns-uneven-content', function() { grid.querySelectorAll('vaadin-grid-column')[0].hidden
-    = true; // Flush row height and position calculations grid.$.scroller.flushDebouncer('vaadin-grid-resizing'); expect(rows[0].getBoundingClientRect().bottom).to.eql(rows[1].getBoundingClientRect().top);
+    import './helpers.js'; import '../vaadin-grid.js'; import { Element } from '../../@polymer/polymer/polymer-element.js'; import
+    { flush as flush$0 } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; describe('rows', function() { var grid,
+    scroller, header, rows, defaultHeight, wrappers; var dataProviderDelay = 200; function init(fixtureName, cb) { grid =
+    fixture(fixtureName); if (Element) { flushColumns(grid); } listenOnce(grid, 'items-assigned', function() { flush$0();
+    rows = getRows(grid.$.items); defaultHeight = getRows(header)[0].clientHeight; if (grid._observer.flush) { grid._observer.flush();
+    } wrappers = getRowCells(rows[0]).map(function(cell) { return getCellContent(cell); }); cb(); }); scroller = grid.$.scroller;
+    header = grid.$.header; grid.dataProvider = function(info, callback) { var startIndex = info.pageSize * info.page; callback(buildDataSet(startIndex
+    + info.pageSize).splice(startIndex)); grid.fire('items-assigned'); }; } beforeEach(function() { this.currentTest.timeout(30000);
+    }); it('should have higher wrappers on each row cell', function(done) { init('two-columns', function() { wrappers[0].style.height
+    = wrappers[0].clientHeight * 2 + 'px'; flush(function() { expect(wrappers[1].clientHeight).to.equal(wrappers[0].clientHeight);
+    done(); }); }); }); it('should not misalign on resize (wheel)', function(done) { init('default-content', function() {
+    scrollToEnd(grid); // Simulate a wheel event that doesn't cause a scroll event var e = new CustomEvent('wheel', {bubbles:
+    true}); e.deltaY = -100; e.deltaX = 0; scroller.$.table.dispatchEvent(e); // Simulate a (window) resize grid.style.width
+    = '200px'; scroller._resizeHandler(); expect(header.getBoundingClientRect().top).to.be.closeTo(scroller.getBoundingClientRect().top,
+    1); done(); }); }); it('should update height when hiding columns', function(done) { init('two-columns-uneven-content',
+    function() { grid.querySelectorAll('vaadin-grid-column')[0].hidden = true; // Flush row height and position calculations
+    grid.$.scroller.flushDebouncer('vaadin-grid-resizing'); expect(rows[0].getBoundingClientRect().bottom).to.eql(rows[1].getBoundingClientRect().top);
     done(); }); }); });
   </script>
 </body>

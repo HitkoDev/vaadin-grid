@@ -51,7 +51,7 @@
   </test-fixture>
   <script type="module">
     import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-filter.js'; import '../vaadin-grid-sorter.js';
-    import { flush as flush$0, dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer-element.js';
+    import { flush as flush$0, dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer/polymer-element.js';
     import { Base } from '../../@polymer/polymer/polymer.js'; describe('array data provider', function() { var grid, body;
     function getContent(row, column) { return getCellContent(getCell(row, column)).innerText; } function getCell(row, column)
     { return getRowCells(getRows(body)[row])[column]; } beforeEach(function(done) { // The before each block times out in

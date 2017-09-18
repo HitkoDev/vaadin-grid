@@ -132,7 +132,7 @@
   </test-fixture>
   <script type="module">
     import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-column-group.js'; import { dom, flush as flush$0
-    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer-element.js';
+    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer/polymer-element.js';
     function getVisualCellContent(section, row, col) { var cell = Array.prototype.slice.call(dom(section).querySelectorAll('.vaadin-grid-cell')).pop();
     if (section.tagName === 'VAADIN-GRID-TABLE-FOOTER') { cell = dom(section).querySelector('.vaadin-grid-cell'); } var sectionRect
     = section.getBoundingClientRect(); var sectionBorder = parseInt(section.style.borderTopWidth || 0); var cellWidth = cell.offsetWidth;
@@ -148,11 +148,10 @@
     { var grid, headerContent; beforeEach(function(done) { // The before each block times out in CI with Firefox on Polymer
     2 this.timeout(30000); grid = fixture('default'); grid.dataProvider = infiniteDataProvider; flush(function() { var colCount
     = getRowCells(getRows(grid.$.header)[0]).length; headerContent = []; for (var i = 0; i
-    < colCount; i++) { headerContent.push(getVisualHeaderCellContent(grid,
-      0, i)); } done(); }); }); it( 'should have initial visual order', function() { expectVisualOrder(grid, [1, 2, 3, 4]);
-      }); it( 'should be draggable if and only if grid is reorderable', function() { var event=n ew CustomEvent(
-      'mousemove', {bubbles: true}); headerContent[0].dispatchEvent(event); expect(headerContent[0].getAttribute( 'draggable')).to.equal(
-      'true'); grid.columnReorderingAllowed=f alse; headerContent[0].dispatchEvent(event); expect(headerContent[0].getAttribute(
+    < colCount; i++) { headerContent.push(getVisualHeaderCellContent(grid, 0, i)); } done(); }); }); it(
+      'should have initial visual order', function() { expectVisualOrder(grid, [1, 2, 3, 4]); }); it(
+      'should be draggable if and only if grid is reorderable', function() { var event=n ew CustomEvent( 'mousemove', {bubbles: true}); headerContent[0].dispatchEvent(event); expect(headerContent[0].getAttribute(
+      'draggable')).to.equal( 'true'); grid.columnReorderingAllowed=f alse; headerContent[0].dispatchEvent(event); expect(headerContent[0].getAttribute(
       'draggable')).to.equal( 'false'); }); it( 'should indicate dragged cells', function() { dragStart(headerContent[0]); var cell=g
       etCellByCellContent(grid, headerContent[0]); expect(cell.getAttribute( 'reorder-status')).to.equal( 'dragging'); });
       it( 'should clear reorder status on dragend', function() { dragAndDropOver(headerContent[0], headerContent[1]); var cell=g
