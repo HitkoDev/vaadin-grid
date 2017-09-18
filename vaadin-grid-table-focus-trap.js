@@ -1,7 +1,7 @@
-import '../@polymer/polymer.js';
-import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
-import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
-import { Settings } from '../@polymer/lib/utils/settings.js';
+import '../@polymer/polymer/polymer.js';
+import { Polymer } from '../@polymer/polymer/lib/legacy/polymer-fn.js';
+import { dom } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
+import { Settings } from '../@polymer/polymer/lib/utils/settings.js';
 Polymer({
   _template: `
     <style>

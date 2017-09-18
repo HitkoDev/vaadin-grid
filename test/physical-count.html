@@ -1,17 +1,13 @@
 <!doctype html>
-
 <html>
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
   <script type="module" src="../vaadin-grid.js"></script>
-
   <custom-style>
     <style is="custom-style">
       vaadin-grid {
@@ -26,11 +22,9 @@
       }
     </style>
   </custom-style>
-
 </head>
 
 <body>
-
   <test-fixture id="default">
     <template>
       <vaadin-grid style="width: 200px; height: 200px;" size="200">
@@ -40,91 +34,26 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { updateStyles } from '../../@polymer/lib/mixins/element-mixin.js';
-import { flush } from '../../@polymer/lib/legacy/polymer.dom.js';
-describe('dynamic physical count', function() {
-  var scroller, grid;
-
-  beforeEach(function() {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('default');
-    grid.dataProvider = infiniteDataProvider;
-    scroller = grid.$.scroller;
-  });
-
-  it('increase pool size', function(done) {
-    animationFrameFlush(function() {
-      var lastItem = scroller._physicalItems[scroller.lastVisibleIndex];
-      var lastItemHeight = lastItem.offsetHeight;
-      var expectedFinalItem = Math.ceil(grid.offsetHeight / scroller._physicalAverage) - 1;
-
-      expect(scroller.offsetHeight).to.equal(grid.offsetHeight);
-      expect(isFullOfItems(scroller)).to.be.true;
-      expect(getCellContent(lastItem).textContent).to.equal(String(expectedFinalItem));
-      done();
+    import './helpers.js'; import '../vaadin-grid.js'; import { updateStyles } from '../../@polymer/polymer/lib/mixins/element-mixin.js';
+    import { flush } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; describe('dynamic physical count', function()
+    { var scroller, grid; beforeEach(function() { // The before each block times out in CI with Firefox on Polymer 2 this.timeout(30000);
+    grid = fixture('default'); grid.dataProvider = infiniteDataProvider; scroller = grid.$.scroller; }); it('increase pool
+    size', function(done) { animationFrameFlush(function() { var lastItem = scroller._physicalItems[scroller.lastVisibleIndex];
+    var lastItemHeight = lastItem.offsetHeight; var expectedFinalItem = Math.ceil(grid.offsetHeight / scroller._physicalAverage)
+    - 1; expect(scroller.offsetHeight).to.equal(grid.offsetHeight); expect(isFullOfItems(scroller)).to.be.true; expect(getCellContent(lastItem).textContent).to.equal(String(expectedFinalItem));
+    done(); }); }); it('increase pool size after resizing the scroller', function(done) { grid.classList.add('small'); updateStyles();
+    grid.style.display = 'none'; expect(scroller._physicalItems.length).to.eql(25); grid.style.display = ''; scroller._update();
+    flush(); animationFrameFlush(function() { scroller.flushDebouncer('_debounceTemplate'); expect(scroller._physicalItems.length).to.be.greaterThan(25);
+    done(); }); }); it('pool should not increase if the scroller has no size', function() { grid.style.display = 'none';
+    grid.classList.add('small'); updateStyles(); flush(); // grid.style.display = ''; // Displaying the grid here would make
+    // _increasePoolIfNeeded return truthy scroller._update(); expect(scroller._increasePoolIfNeeded()).to.be.false; });
+    it('should minimize increase pool iterations', function(done) { var spy = sinon.spy(grid.$.scroller, '_increasePool');
+    grid.style.height = '1000px'; animationFrameFlush(function() { expect(spy.callCount).to.be.below(4); done(); }); });
+    it('should minimize physical count', function(done) { expect(grid.$.scroller._physicalCount).to.be.below(26); grid.style.height
+    = '1000px'; animationFrameFlush(function() { expect(grid.$.scroller._physicalCount).to.be.below(87); done(); }); });
     });
-  });
-
-  it('increase pool size after resizing the scroller', function(done) {
-    grid.classList.add('small');
-    updateStyles();
-    grid.style.display = 'none';
-    expect(scroller._physicalItems.length).to.eql(25);
-
-    grid.style.display = '';
-    scroller._update();
-    flush();
-
-    animationFrameFlush(function() {
-      scroller.flushDebouncer('_debounceTemplate');
-      expect(scroller._physicalItems.length).to.be.greaterThan(25);
-      done();
-    });
-  });
-
-  it('pool should not increase if the scroller has no size', function() {
-    grid.style.display = 'none';
-
-    grid.classList.add('small');
-    updateStyles();
-    flush();
-
-    // grid.style.display = ''; // Displaying the grid here would make
-    // _increasePoolIfNeeded return truthy
-    scroller._update();
-    expect(scroller._increasePoolIfNeeded()).to.be.false;
-  });
-
-  it('should minimize increase pool iterations', function(done) {
-    var spy = sinon.spy(grid.$.scroller, '_increasePool');
-    grid.style.height = '1000px';
-
-    animationFrameFlush(function() {
-      expect(spy.callCount).to.be.below(4);
-      done();
-    });
-  });
-
-  it('should minimize physical count', function(done) {
-    expect(grid.$.scroller._physicalCount).to.be.below(26);
-    grid.style.height = '1000px';
-
-    animationFrameFlush(function() {
-      expect(grid.$.scroller._physicalCount).to.be.below(87);
-      done();
-    });
-  });
-
-
-});
-</script>
-
+  </script>
 </body>
 
 </html>

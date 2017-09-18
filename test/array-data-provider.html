@@ -1,15 +1,12 @@
 <!doctype html>
-
 <html>
 
 <head>
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
   <script type="module" src="../vaadin-grid.js"></script>
   <script type="module" src="../vaadin-grid-filter.js"></script>
@@ -17,7 +14,6 @@
 </head>
 
 <body>
-
   <test-fixture id="default">
     <template>
       <vaadin-grid>
@@ -32,7 +28,6 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <test-fixture id="invalid-path">
     <template>
       <vaadin-grid>
@@ -44,7 +39,6 @@
           </template>
           <template>[[item.name.first]]</template>
         </vaadin-grid-column>
-
         <vaadin-grid-column>
           <template class="header">
             <vaadin-grid-filter value="foo">
@@ -55,243 +49,46 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import '../vaadin-grid-filter.js';
-import '../vaadin-grid-sorter.js';
-import { flush as flush$0, dom } from '../../@polymer/lib/legacy/polymer.dom.js';
-import { Element } from '../../@polymer/polymer-element.js';
-import { Base } from '../../@polymer/polymer.js';
-describe('array data provider', function() {
-  var grid, body;
-
-  function getContent(row, column) {
-    return getCellContent(getCell(row, column)).innerText;
-  }
-
-  function getCell(row, column) {
-    return getRowCells(getRows(body)[row])[column];
-  }
-
-  beforeEach(function(done) {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('default');
-    grid.items = [{
-      name: {
-        first: 'foo',
-        last: 'bar'
-      }
-    }, {
-      name: {
-        first: 'baz',
-        last: 'qux'
-      }
-    }];
-    flush$0();
-    body = grid.$.items;
-    animationFrameFlush(done);
-  });
-
-  it('should have right amount of data', function() {
-    var bodyRows = getRows(body);
-    expect(bodyRows).to.have.length(2);
-  });
-
-  it('should have the right data', function() {
-    expect(getContent(0, 0)).to.equal('foo');
-    expect(getContent(1, 0)).to.equal('baz');
-  });
-
-  it('should be observed for shift', function() {
-    grid.unshift('items', {
-      name: {
-        first: 'a',
-        last: 'b'
-      }
-    });
-    expect(grid.size).to.equal(3);
-    expect(getContent(0, 0)).to.equal('a');
-  });
-
-  it('should be observed for mutation', function() {
-    grid.set('items.0.name.first', 'new');
-    expect(getContent(0, 0)).to.equal('new');
-  });
-
-  it('should handle null', function() {
-    grid.items = null;
-    expect(grid.size).to.equal(0);
-  });
-
-  it('should set array data provider', function() {
-    expect(grid.dataProvider).to.equal(grid._arrayDataProvider);
-  });
-
-  it('should not override custom data provider', function() {
-    var ds = grid.dataProvider = function() {};
-    grid.items = [1, 2, 3];
-    expect(grid.dataProvider).to.equal(ds);
-  });
-
-  it('should handle new array of same length', function() {
-    grid.items = [{
-      name: {
-        first: 'a'
-      }
-    }, {
-      name: {
-        first: 'b'
-      }
-    }];
-    expect(getContent(0, 0)).to.equal('a');
-  });
-});
-
-describe('invalid paths', function() {
-  var grid;
-
-  beforeEach(function() {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('invalid-path');
-
-    if (Element) {
-      Array.prototype
-        .forEach.call(grid.querySelectorAll('vaadin-grid-column'),
-        function(col) {
-          col._templateObserver.flush();
-        });
-    }
-
-    grid.items = [{
-      name: {
-        first: 'foo',
-        last: 'bar'
-      }
-    }];
-    flush$0();
-  });
-
-  describe('invalid sorters paths', function() {
-    var sorter;
-
-    beforeEach(function() {
-      sorter = dom(grid).querySelector('vaadin-grid-sorter');
-    });
-
-    it('should warn about invalid path with undefined parent property', function() {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      sorter.path = 'foo.bar';
-      click(sorter);
-      console.warn = _warn;
-
-      expect(spy.called).to.be.true;
-    });
-
-    it('should not warn about undefined values with defined parent property', function() {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      sorter.path = 'name.foo';
-      click(sorter);
-      console.warn = _warn;
-
-      expect(spy.called).to.be.false;
-    });
-
-    it('should not warn about invalid path without dots', function() {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      sorter.path = 'foobar';
-      click(sorter);
-      console.warn = _warn;
-
-      expect(spy.called).to.be.false;
-    });
-
-    it('should not warn about undefined values with defined parent property (long path)', function() {
-      grid.items = [{
-        name: {
-          last: {
-            foo: 'foo'
-          }
-        }
-      }];
-
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      sorter.path = 'name.last.foo';
-      click(sorter);
-      console.warn = _warn;
-
-      expect(spy.called).to.be.false;
-    });
-  });
-
-  describe('invalid filters paths', function() {
-    var filter;
-
-    beforeEach(function() {
-      filter = dom(grid).querySelector('vaadin-grid-filter');
-    });
-
-    it('should warn about invalid path with undefined parent property', function(done) {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      filter.addEventListener('filter-changed', function(e) {
-        Base.async(function() {
-          console.warn = _warn;
-          expect(spy.called).to.be.true;
-          done();
-        });
-      });
-
-      filter.path = 'foo.bar';
-    });
-
-    it('should not warn about undefined values with defined parent property', function(done) {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      filter.addEventListener('filter-changed', function(e) {
-        Base.async(function() {
-          console.warn = _warn;
-          expect(spy.called).to.be.false;
-          done();
-        });
-      });
-
-      filter.path = 'name.foo';
-    });
-
-    it('should not warn about invalid path without dots', function(done) {
-      var _warn = console.warn;
-      var spy = console.warn = sinon.spy();
-
-      filter.addEventListener('filter-changed', function(e) {
-        Base.async(function() {
-          console.warn = _warn;
-          expect(spy.called).to.be.false;
-          done();
-        });
-      });
-
-      filter.path = 'foobar';
-    });
-  });
-});
-</script>
-
+    import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-filter.js'; import '../vaadin-grid-sorter.js';
+    import { flush as flush$0, dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Element } from '../../@polymer/polymer-element.js';
+    import { Base } from '../../@polymer/polymer/polymer.js'; describe('array data provider', function() { var grid, body;
+    function getContent(row, column) { return getCellContent(getCell(row, column)).innerText; } function getCell(row, column)
+    { return getRowCells(getRows(body)[row])[column]; } beforeEach(function(done) { // The before each block times out in
+    CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('default'); grid.items = [{ name: { first: 'foo', last:
+    'bar' } }, { name: { first: 'baz', last: 'qux' } }]; flush$0(); body = grid.$.items; animationFrameFlush(done); }); it('should
+    have right amount of data', function() { var bodyRows = getRows(body); expect(bodyRows).to.have.length(2); }); it('should
+    have the right data', function() { expect(getContent(0, 0)).to.equal('foo'); expect(getContent(1, 0)).to.equal('baz');
+    }); it('should be observed for shift', function() { grid.unshift('items', { name: { first: 'a', last: 'b' } }); expect(grid.size).to.equal(3);
+    expect(getContent(0, 0)).to.equal('a'); }); it('should be observed for mutation', function() { grid.set('items.0.name.first',
+    'new'); expect(getContent(0, 0)).to.equal('new'); }); it('should handle null', function() { grid.items = null; expect(grid.size).to.equal(0);
+    }); it('should set array data provider', function() { expect(grid.dataProvider).to.equal(grid._arrayDataProvider); });
+    it('should not override custom data provider', function() { var ds = grid.dataProvider = function() {}; grid.items =
+    [1, 2, 3]; expect(grid.dataProvider).to.equal(ds); }); it('should handle new array of same length', function() { grid.items
+    = [{ name: { first: 'a' } }, { name: { first: 'b' } }]; expect(getContent(0, 0)).to.equal('a'); }); }); describe('invalid
+    paths', function() { var grid; beforeEach(function() { // The before each block times out in CI with Firefox on Polymer
+    2 this.timeout(30000); grid = fixture('invalid-path'); if (Element) { Array.prototype .forEach.call(grid.querySelectorAll('vaadin-grid-column'),
+    function(col) { col._templateObserver.flush(); }); } grid.items = [{ name: { first: 'foo', last: 'bar' } }]; flush$0();
+    }); describe('invalid sorters paths', function() { var sorter; beforeEach(function() { sorter = dom(grid).querySelector('vaadin-grid-sorter');
+    }); it('should warn about invalid path with undefined parent property', function() { var _warn = console.warn; var spy
+    = console.warn = sinon.spy(); sorter.path = 'foo.bar'; click(sorter); console.warn = _warn; expect(spy.called).to.be.true;
+    }); it('should not warn about undefined values with defined parent property', function() { var _warn = console.warn;
+    var spy = console.warn = sinon.spy(); sorter.path = 'name.foo'; click(sorter); console.warn = _warn; expect(spy.called).to.be.false;
+    }); it('should not warn about invalid path without dots', function() { var _warn = console.warn; var spy = console.warn
+    = sinon.spy(); sorter.path = 'foobar'; click(sorter); console.warn = _warn; expect(spy.called).to.be.false; }); it('should
+    not warn about undefined values with defined parent property (long path)', function() { grid.items = [{ name: { last:
+    { foo: 'foo' } } }]; var _warn = console.warn; var spy = console.warn = sinon.spy(); sorter.path = 'name.last.foo'; click(sorter);
+    console.warn = _warn; expect(spy.called).to.be.false; }); }); describe('invalid filters paths', function() { var filter;
+    beforeEach(function() { filter = dom(grid).querySelector('vaadin-grid-filter'); }); it('should warn about invalid path
+    with undefined parent property', function(done) { var _warn = console.warn; var spy = console.warn = sinon.spy(); filter.addEventListener('filter-changed',
+    function(e) { Base.async(function() { console.warn = _warn; expect(spy.called).to.be.true; done(); }); }); filter.path
+    = 'foo.bar'; }); it('should not warn about undefined values with defined parent property', function(done) { var _warn
+    = console.warn; var spy = console.warn = sinon.spy(); filter.addEventListener('filter-changed', function(e) { Base.async(function()
+    { console.warn = _warn; expect(spy.called).to.be.false; done(); }); }); filter.path = 'name.foo'; }); it('should not
+    warn about invalid path without dots', function(done) { var _warn = console.warn; var spy = console.warn = sinon.spy();
+    filter.addEventListener('filter-changed', function(e) { Base.async(function() { console.warn = _warn; expect(spy.called).to.be.false;
+    done(); }); }); filter.path = 'foobar'; }); }); });
+  </script>
 </body>
 
 </html>

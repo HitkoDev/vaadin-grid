@@ -1,5 +1,5 @@
 import { IronScrollTargetBehavior } from '../@polymer/iron-scroll-target-behavior/iron-scroll-target-behavior.js';
-import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
+import { dom } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
 const $_documentContainer = document.createElement('div');
 $_documentContainer.setAttribute('style', 'display: none;');
 

@@ -1,4 +1,4 @@
-import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
+import { dom } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
 import { Element } from '../@polymer/polymer-element.js';
 const $_documentContainer = document.createElement('div');
 $_documentContainer.setAttribute('style', 'display: none;');

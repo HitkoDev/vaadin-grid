@@ -1,7 +1,7 @@
 import './vaadin-grid-table-cell.js';
-import { Settings } from '../@polymer/lib/utils/settings.js';
-import { dom, flush as flush$0 } from '../@polymer/lib/legacy/polymer.dom.js';
-import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { Settings } from '../@polymer/polymer/lib/utils/settings.js';
+import { dom, flush as flush$0 } from '../@polymer/polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/polymer/lib/legacy/polymer-fn.js';
 
 /**
  * @polymerBehavior vaadinGridTableRowBehavior

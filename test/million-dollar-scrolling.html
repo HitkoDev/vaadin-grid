@@ -1,22 +1,17 @@
 <!doctype html>
-
 <html>
 
 <head>
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
-
   <script type="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
-
   <dom-module id="x-grid">
     <template>
       <style>
@@ -34,124 +29,38 @@
       </vaadin-grid>
     </template>
     <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'x-grid'
-});
-</script>
+      import './helpers.js'; import '../vaadin-grid.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js';
+      Polymer({ is: 'x-grid' });
+    </script>
   </dom-module>
-
   <test-fixture id="table">
     <template>
       <x-grid></x-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { Base } from '../../@polymer/polymer.js';
-function simulateScrollToStart(grid, done) {
-  // make sure not over scroll more than the delta threshold limit of 10k.
-  var table = grid.$.scroller.$.table;
-  table.addEventListener('scroll', function() {
-    if (grid.$.scroller.$.table.scrollTop > 0) {
-      table.scrollTop -= 2000;
-    } else {
-      Base.async(done, 100);
-    }
-  });
-  table.scrollTop -= 2500;
-}
-
-function simulateScrollToEnd(grid, done) {
-  // make sure not over scroll more than the delta threshold limit of 10k.
-  var table = grid.$.scroller.$.table;
-  var listener = function() {
-    if (table.scrollTop < table.scrollHeight - table.clientHeight - 1) {
-      table.scrollTop += 2500;
-    } else {
-      table.removeEventListener('scroll', listener);
-      Base.async(done, 100);
-    }
-  };
-  table.addEventListener('scroll', listener);
-  table.scrollTop += 2500;
-}
-
-describe('scrolling', function() {
-  var container, grid;
-
-  beforeEach(function(done) {
-    Base.async(done, 1);
-  });
-
-  [100, 10000, 100000, 1000000].forEach(function(size) {
-    describe(size + ' items', function() {
-      beforeEach(function(done) {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
-
-        container = fixture('table');
-        grid = container.$.grid;
-        grid.dataProvider = infiniteDataProvider;
-        grid.size = size;
-        flush(function() {
-          grid.$.scroller.$.table.scrollTop = grid.$.scroller.$.table.scrollHeight;
-
-          setTimeout(function() {
-            grid.$.scroller.$.table.scrollTop = 0;
-            done();
-          }, 50);
-        });
-      });
-
-      it('should be able to scroll to half-way', function() {
-        var viewportHeight = 300;
-        var itemHeight = 30;
-        grid.$.scroller.$.table.scrollTop =
-          Math.floor(grid.$.scroller.$.table.scrollHeight / 2) + 1.5 * viewportHeight - 0.5 * itemHeight;
-
-        grid.$.scroller._scrollHandler();
-        grid.$.scroller.flushDebouncer('vaadin-grid-scrolling');
-
-        expect(getFirstCell(grid).index).to.be.closeTo(grid.size / 2, 20);
-      });
-
-      it('should be able to scroll to end', function(done) {
-        scrollToEnd(grid, function() {
-          expect(getCellContent(getLastVisibleItem(grid.$.scroller)).textContent).to.contain('item' + (grid.size - 1));
-          done();
-        });
-      });
-
-      it('should be able to manually scroll to start', function(done) {
-        grid.$.scroller.$.table.scrollTop = 20000;
-        this.timeout(1000000);
-
-        simulateScrollToStart(grid, function() {
-          expect(getCellContent(getFirstVisibleItem(grid.$.scroller)).textContent).to.contain('item0');
-          done();
-        });
-      });
-
-      it('should be able to manually scroll to end', function(done) {
-        grid.$.scroller.$.table.scrollTop = grid.$.scroller.$.table.scrollHeight - 20000;
-        this.timeout(1000000);
-
-        simulateScrollToEnd(grid, function() {
-          expect(getCellContent(getLastVisibleItem(grid.$.scroller)).textContent).to.contain('item' + (grid.size - 1));
-          done();
-        });
-      });
-
-    });
-  });
-});
-</script>
-
+    import './helpers.js'; import '../vaadin-grid.js'; import { Base } from '../../@polymer/polymer/polymer.js'; function simulateScrollToStart(grid,
+    done) { // make sure not over scroll more than the delta threshold limit of 10k. var table = grid.$.scroller.$.table;
+    table.addEventListener('scroll', function() { if (grid.$.scroller.$.table.scrollTop > 0) { table.scrollTop -= 2000; }
+    else { Base.async(done, 100); } }); table.scrollTop -= 2500; } function simulateScrollToEnd(grid, done) { // make sure
+    not over scroll more than the delta threshold limit of 10k. var table = grid.$.scroller.$.table; var listener = function()
+    { if (table.scrollTop
+    < table.scrollHeight - table.clientHeight - 1) { table.scrollTop +=2 500; } else { table.removeEventListener(
+      'scroll', listener); Base.async(done, 100); } }; table.addEventListener( 'scroll', listener); table.scrollTop +=2 500; } describe(
+      'scrolling', function() { var container, grid; beforeEach(function(done) { Base.async(done, 1); }); [100, 10000, 100000, 1000000].forEach(function(size)
+      { describe(size + ' items', function() { beforeEach(function(done) { // The before each block times out in CI with Firefox
+      on Polymer 2 this.timeout(30000); container=f ixture( 'table'); grid=c ontainer.$.grid; grid.dataProvider=i nfiniteDataProvider;
+      grid.size=s ize; flush(function() { grid.$.scroller.$.table.scrollTop=g rid.$.scroller.$.table.scrollHeight; setTimeout(function()
+      { grid.$.scroller.$.table.scrollTop=0 ; done(); }, 50); }); }); it( 'should be able to scroll to half-way', function()
+      { var viewportHeight=3 00; var itemHeight=3 0; grid.$.scroller.$.table.scrollTop=M ath.floor(grid.$.scroller.$.table.scrollHeight
+    / 2) + 1.5 * viewportHeight - 0.5 * itemHeight; grid.$.scroller._scrollHandler(); grid.$.scroller.flushDebouncer(
+      'vaadin-grid-scrolling'); expect(getFirstCell(grid).index).to.be.closeTo(grid.size / 2, 20); }); it( 'should be able to scroll to end', function(done)
+      { scrollToEnd(grid, function() { expect(getCellContent(getLastVisibleItem(grid.$.scroller)).textContent).to.contain(
+      'item' + (grid.size - 1)); done(); }); }); it( 'should be able to manually scroll to start', function(done) { grid.$.scroller.$.table.scrollTop=2
+      0000; this.timeout(1000000); simulateScrollToStart(grid, function() { expect(getCellContent(getFirstVisibleItem(grid.$.scroller)).textContent).to.contain(
+      'item0'); done(); }); }); it( 'should be able to manually scroll to end', function(done) { grid.$.scroller.$.table.scrollTop=g
+      rid.$.scroller.$.table.scrollHeight - 20000; this.timeout(1000000); simulateScrollToEnd(grid, function() { expect(getCellContent(getLastVisibleItem(grid.$.scroller)).textContent).to.contain(
+      'item' + (grid.size - 1)); done(); }); }); }); }); }); </script>
 </body>
 
 </html>

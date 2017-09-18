@@ -93,8 +93,8 @@
             </div>
           </template>
           <script type="module">
-            import './common.js'; import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-pagination', properties:
-            { items: Array, page: Number, pages: Array }, ready: function() { this.page = 0; }, observers: ['_itemsChanged(items,
+            import './common.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-pagination',
+            properties: { items: Array, page: Number, pages: Array }, ready: function() { this.page = 0; }, observers: ['_itemsChanged(items,
             page)'], _isSelected: function(page, item) { return page === item - 1; }, _select: function(e) { this.page =
             e.model.item - 1; }, _next: function() { this.page = Math.min(this.pages.length - 1, this.page + 1); }, _prev:
             function() { this.page = Math.max(0, this.page - 1); }, _itemsChanged: function(items, page) { if (items ===

@@ -1,14 +1,11 @@
 <!doctype html>
-
 <html>
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
   <script type="module" src="../vaadin-grid.js"></script>
   <script type="module" src="../vaadin-grid-column-group.js"></script>
@@ -21,7 +18,6 @@
 </head>
 
 <body>
-
   <test-fixture id="default">
     <template>
       <vaadin-grid size="1" style="width: 300px" column-reordering-allowed>
@@ -36,7 +32,6 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <test-fixture id="group">
     <template>
       <vaadin-grid size="1" style="width: 300px">
@@ -54,220 +49,60 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import '../vaadin-grid-column-group.js';
-import { flush as flush$0, dom } from '../../@polymer/lib/legacy/polymer.dom.js';
-import { Settings } from '../../@polymer/lib/utils/settings.js';
-import { Base } from '../../@polymer/polymer.js';
-import { Element } from '../../@polymer/polymer-element.js';
-describe('column resizing', function() {
-  var grid, headerCells, handle;
-
-  beforeEach(function(done) {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('default');
-    grid.dataProvider = infiniteDataProvider;
-    flush$0();
-    headerCells = getRowCells(getRows(grid.$.header)[0]);
-    handle = headerCells[0]._resizeHandle;
-    animationFrameFlush(done);
-  });
-
-  function getElementFromPoint(context, x, y) {
-    if (Settings.useShadow) {
-      return context.root.elementFromPoint(x, y);
-    } else {
-      return document.elementFromPoint(x, y);
-    }
-  }
-
-  it('should be resizable', function() {
-    expect(headerCells[0].resizable).to.be.true;
-  });
-
-  it('should not be resizable', function() {
-    expect(headerCells[1].resizable).not.to.be.true;
-  });
-
-  it('should display resize handle as top-most element', function() {
-    var rect = headerCells[1].getBoundingClientRect();
-    var scrollerRect = grid.$.scroller.getBoundingClientRect();
-    var x = rect.left + handle.offsetWidth / 4;
-    var y = rect.top + rect.height / 2;
-    expect(getElementFromPoint(grid, x, y)).to.equal(handle);
-  });
-
-  it('should resize on track', function() {
-    var options = {node: handle};
-    var rect = headerCells[0].getBoundingClientRect();
-
-    Base.fire('track', {state: 'start'}, options);
-    Base.fire('track', {state: 'track', x: rect.left + 200, y: 0}, options);
-
-    expect(headerCells[0].clientWidth).to.equal(200);
-  });
-
-  it('should not listen to track event on scroller', function() {
-    var scroller = grid.$.scroller;
-    var spy = sinon.spy(scroller, '_onColumnResize');
-    Base.fire('track', {state: 'start'}, {node: scroller});
-    expect(spy.called).to.be.false;
-  });
-
-  it('should be behind the frozen columns', function(done) {
-    grid.style.width = '100px';
-    grid._columnTree[0][0].frozen = true;
-    grid._columnTree[0][0].resizable = false;
-    grid._columnTree[0][1].resizable = true;
-    var table = grid.$.scroller.$.table;
-
-    listenOnce(table, 'scroll', function() {
-      var secondCell = getRowCells(getRows(grid.$.header)[0])[1];
-      var rect = secondCell.getBoundingClientRect();
-      var x = rect.right - 10;
-      var y = rect.top + rect.height / 2;
-      expect(getElementFromPoint(grid, x, y)).not.to.equal(secondCell._resizeHandle);
-      done();
-    });
-
-    table.scrollLeft += 100;
-  });
-
-  it('should not be selectable while resizing', function() {
-    Base.fire('track', {state: 'start'}, {node: handle});
-    expect(window.getComputedStyle(grid.$.scroller).userSelect).not.to.equal('text');
-  });
-
-  it('should remove resizing attribute on end', function() {
-    Base.fire('track', {state: 'start'}, {node: handle});
-    Base.fire('track', {state: 'end'}, {node: handle});
-    expect(grid.$.scroller.hasAttribute('resizing')).to.be.false;
-  });
-
-  it('should not fix width for succeeding columns', function() {
-    grid._columnTree[0][1].width = '50%';
-    grid._columnTree[0][1].flexGrow = 1;
-    Base.fire('track', {state: 'start'}, {node: handle});
-    expect(grid._columnTree[0][1].width).to.equal('50%');
-    expect(grid._columnTree[0][1].flexGrow).to.equal(1);
-  });
-
-  it('should fix width for preceding columns', function() {
-    grid._columnTree[0][1].resizable = true;
-
-    grid._columnTree[0][0].width = '50%';
-    grid._columnTree[0][0].flexGrow = 1;
-    Base.fire('track', {state: 'start'}, {node: headerCells[1]._resizeHandle});
-    expect(grid._columnTree[0][0].width.indexOf('px')).not.to.equal(-1);
-    expect(grid._columnTree[0][0].flexGrow).to.equal(0);
-  });
-
-  it('should fix width for preceding columns after column reordering', function() {
-    dragAndDropOver(getHeaderCellContent(grid, 0, 0), getHeaderCellContent(grid, 0, 1));
-    grid._columnTree[0][1].width = '50%';
-    grid._columnTree[0][1].flexGrow = 1;
-    Base.fire('track', {state: 'start'}, {node: handle});
-    expect(grid._columnTree[0][1].width).to.contain('px');
-    expect(grid._columnTree[0][1].flexGrow).to.equal(0);
-  });
-
-  it('should notify resize on column resize', function() {
-    var spy = sinon.spy(grid.$.scroller, '_gridResizeHandler');
-    var options = {node: handle};
-    var rect = headerCells[0].getBoundingClientRect();
-
-    Base.fire('track', {state: 'start'}, options);
-    Base.fire('track', {state: 'track', x: rect.left + 200, y: 0}, options);
-
-    expect(spy.called).to.be.true;
-  });
-
-});
-
-describe('column group resizing', function() {
-  var grid;
-
-  beforeEach(function(done) {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('group');
-    grid.dataProvider = infiniteDataProvider;
-    animationFrameFlush(done);
-  });
-
-  it('should cascade resizable property to child columns', function(done) {
-    // IE11
-    animationFrameFlush(function() {
-      expect(grid._columnTree[1][0].resizable).to.be.true;
-      grid._columnTree[0][0].resizable = false;
-      expect(grid._columnTree[1][0].resizable).to.be.false;
-      done();
-    });
-  });
-
-  it('should inherit resizable value from parent group', function(done) {
-    var newColumn = document.createElement('vaadin-grid-column');
-    dom(grid._columnTree[0][0]).appendChild(newColumn);
-    flush$0();
-
-    if (Element) {
-      grid._columnTree[0][0]._observer.flush();
-    }
-
-    animationFrameFlush(function() {
-      expect(newColumn.resizable).to.be.true;
-      done();
-    });
-  });
-
-  it('should have resizable false by default on column', function() {
-    var newColumn = document.createElement('vaadin-grid-column');
-
-    expect(newColumn.resizable).to.be.false;
-  });
-
-  it('should not have resizable by default on column group', function() {
-    var newColumn = document.createElement('vaadin-grid-column-group');
-
-    expect(newColumn.resizable).to.be.undefined;
-  });
-
-  it('should resize the child column', function() {
-    var headerRows = getRows(grid.$.header);
-    var handle = getRowCells(headerRows[0])[0]._resizeHandle;
-
-    var cell = getRowCells(headerRows[1])[1];
-    var rect = cell.getBoundingClientRect();
-    var options = {node: handle};
-    Base.fire('track', {state: 'start'}, options);
-    Base.fire('track', {state: 'track', x: rect.right + 100, y: 0}, options);
-
-    expect(cell.clientWidth).to.equal(200);
-  });
-
-  it('should resize the last non-hidden child column', function() {
-    grid._columnTree[1][1].hidden = true;
-    var headerRows = getRows(grid.$.header);
-    var handle = getRowCells(headerRows[0])[0]._resizeHandle;
-
-    var cell = getRowCells(headerRows[1])[0];
-    var rect = cell.getBoundingClientRect();
-    var options = {node: handle};
-    Base.fire('track', {state: 'start'}, options);
-    Base.fire('track', {state: 'track', x: rect.right + 100, y: 0}, options);
-
-    expect(cell.clientWidth).to.equal(200);
-  });
-
-});
-</script>
-
+    import './helpers.js'; import '../vaadin-grid.js'; import '../vaadin-grid-column-group.js'; import { flush as flush$0, dom
+    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Settings } from '../../@polymer/polymer/lib/utils/settings.js';
+    import { Base } from '../../@polymer/polymer/polymer.js'; import { Element } from '../../@polymer/polymer-element.js';
+    describe('column resizing', function() { var grid, headerCells, handle; beforeEach(function(done) { // The before each
+    block times out in CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('default'); grid.dataProvider = infiniteDataProvider;
+    flush$0(); headerCells = getRowCells(getRows(grid.$.header)[0]); handle = headerCells[0]._resizeHandle; animationFrameFlush(done);
+    }); function getElementFromPoint(context, x, y) { if (Settings.useShadow) { return context.root.elementFromPoint(x, y);
+    } else { return document.elementFromPoint(x, y); } } it('should be resizable', function() { expect(headerCells[0].resizable).to.be.true;
+    }); it('should not be resizable', function() { expect(headerCells[1].resizable).not.to.be.true; }); it('should display
+    resize handle as top-most element', function() { var rect = headerCells[1].getBoundingClientRect(); var scrollerRect
+    = grid.$.scroller.getBoundingClientRect(); var x = rect.left + handle.offsetWidth / 4; var y = rect.top + rect.height
+    / 2; expect(getElementFromPoint(grid, x, y)).to.equal(handle); }); it('should resize on track', function() { var options
+    = {node: handle}; var rect = headerCells[0].getBoundingClientRect(); Base.fire('track', {state: 'start'}, options); Base.fire('track',
+    {state: 'track', x: rect.left + 200, y: 0}, options); expect(headerCells[0].clientWidth).to.equal(200); }); it('should
+    not listen to track event on scroller', function() { var scroller = grid.$.scroller; var spy = sinon.spy(scroller, '_onColumnResize');
+    Base.fire('track', {state: 'start'}, {node: scroller}); expect(spy.called).to.be.false; }); it('should be behind the
+    frozen columns', function(done) { grid.style.width = '100px'; grid._columnTree[0][0].frozen = true; grid._columnTree[0][0].resizable
+    = false; grid._columnTree[0][1].resizable = true; var table = grid.$.scroller.$.table; listenOnce(table, 'scroll', function()
+    { var secondCell = getRowCells(getRows(grid.$.header)[0])[1]; var rect = secondCell.getBoundingClientRect(); var x =
+    rect.right - 10; var y = rect.top + rect.height / 2; expect(getElementFromPoint(grid, x, y)).not.to.equal(secondCell._resizeHandle);
+    done(); }); table.scrollLeft += 100; }); it('should not be selectable while resizing', function() { Base.fire('track',
+    {state: 'start'}, {node: handle}); expect(window.getComputedStyle(grid.$.scroller).userSelect).not.to.equal('text');
+    }); it('should remove resizing attribute on end', function() { Base.fire('track', {state: 'start'}, {node: handle});
+    Base.fire('track', {state: 'end'}, {node: handle}); expect(grid.$.scroller.hasAttribute('resizing')).to.be.false; });
+    it('should not fix width for succeeding columns', function() { grid._columnTree[0][1].width = '50%'; grid._columnTree[0][1].flexGrow
+    = 1; Base.fire('track', {state: 'start'}, {node: handle}); expect(grid._columnTree[0][1].width).to.equal('50%'); expect(grid._columnTree[0][1].flexGrow).to.equal(1);
+    }); it('should fix width for preceding columns', function() { grid._columnTree[0][1].resizable = true; grid._columnTree[0][0].width
+    = '50%'; grid._columnTree[0][0].flexGrow = 1; Base.fire('track', {state: 'start'}, {node: headerCells[1]._resizeHandle});
+    expect(grid._columnTree[0][0].width.indexOf('px')).not.to.equal(-1); expect(grid._columnTree[0][0].flexGrow).to.equal(0);
+    }); it('should fix width for preceding columns after column reordering', function() { dragAndDropOver(getHeaderCellContent(grid,
+    0, 0), getHeaderCellContent(grid, 0, 1)); grid._columnTree[0][1].width = '50%'; grid._columnTree[0][1].flexGrow = 1;
+    Base.fire('track', {state: 'start'}, {node: handle}); expect(grid._columnTree[0][1].width).to.contain('px'); expect(grid._columnTree[0][1].flexGrow).to.equal(0);
+    }); it('should notify resize on column resize', function() { var spy = sinon.spy(grid.$.scroller, '_gridResizeHandler');
+    var options = {node: handle}; var rect = headerCells[0].getBoundingClientRect(); Base.fire('track', {state: 'start'},
+    options); Base.fire('track', {state: 'track', x: rect.left + 200, y: 0}, options); expect(spy.called).to.be.true; });
+    }); describe('column group resizing', function() { var grid; beforeEach(function(done) { // The before each block times
+    out in CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('group'); grid.dataProvider = infiniteDataProvider;
+    animationFrameFlush(done); }); it('should cascade resizable property to child columns', function(done) { // IE11 animationFrameFlush(function()
+    { expect(grid._columnTree[1][0].resizable).to.be.true; grid._columnTree[0][0].resizable = false; expect(grid._columnTree[1][0].resizable).to.be.false;
+    done(); }); }); it('should inherit resizable value from parent group', function(done) { var newColumn = document.createElement('vaadin-grid-column');
+    dom(grid._columnTree[0][0]).appendChild(newColumn); flush$0(); if (Element) { grid._columnTree[0][0]._observer.flush();
+    } animationFrameFlush(function() { expect(newColumn.resizable).to.be.true; done(); }); }); it('should have resizable
+    false by default on column', function() { var newColumn = document.createElement('vaadin-grid-column'); expect(newColumn.resizable).to.be.false;
+    }); it('should not have resizable by default on column group', function() { var newColumn = document.createElement('vaadin-grid-column-group');
+    expect(newColumn.resizable).to.be.undefined; }); it('should resize the child column', function() { var headerRows = getRows(grid.$.header);
+    var handle = getRowCells(headerRows[0])[0]._resizeHandle; var cell = getRowCells(headerRows[1])[1]; var rect = cell.getBoundingClientRect();
+    var options = {node: handle}; Base.fire('track', {state: 'start'}, options); Base.fire('track', {state: 'track', x: rect.right
+    + 100, y: 0}, options); expect(cell.clientWidth).to.equal(200); }); it('should resize the last non-hidden child column',
+    function() { grid._columnTree[1][1].hidden = true; var headerRows = getRows(grid.$.header); var handle = getRowCells(headerRows[0])[0]._resizeHandle;
+    var cell = getRowCells(headerRows[1])[0]; var rect = cell.getBoundingClientRect(); var options = {node: handle}; Base.fire('track',
+    {state: 'start'}, options); Base.fire('track', {state: 'track', x: rect.right + 100, y: 0}, options); expect(cell.clientWidth).to.equal(200);
+    }); });
+  </script>
 </body>
 
 </html>

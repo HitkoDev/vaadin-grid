@@ -29,7 +29,7 @@
     </template>
     <script type="module">
       import './helpers.js'; import '../vaadin-grid.js'; import { AppLocalizeBehavior } from '../../app-localize-behavior/app-localize-behavior.js';
-      import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-grid', behaviors: [AppLocalizeBehavior],
+      import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-grid', behaviors: [AppLocalizeBehavior],
       properties: { language: { value: 'en' } }, attached: function() { this.loadResources('locales.json'); } });
     </script>
   </dom-module>

@@ -77,17 +77,17 @@
             </vaadin-grid>
           </template>
           <script type="module">
-            import './common.js'; import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-crud', properties:
-            { editing: Object }, ready: function() { this.editing = null; }, _storeFirst: function(e) { this._first = e.target.value;
-            }, _storeLast: function(e) { this._last = e.target.value; }, _isEditing: function(editing, item) { return item
-            === editing; }, _edit: function(e) { var item = e.model.item; this.editing = item; this._first = item.name.first;
-            this._last = item.name.last; this.$.grid.querySelector('#first-' + e.model.index).focus(); }, _save: function(e)
-            { var item = e.model.item; item.name.first = this._first; item.name.last = this._last; this.editing = null; this.$.grid.clearCache();
-            }, _cancel: function() { this.editing = null; this.$.grid.clearCache(); }, _add: function(e) { if (this.$.firstname.value
-            !== '' && this.$.lastname.value !== '') { this.items.unshift({name: {first: this.$.firstname.value, last: this.$.lastname.value}});
-            this.$.grid.clearCache(); this.$.firstname.value = ''; this.$.lastname.value = ''; } else { alert('First Name
-            and Last Name required'); } }, _remove: function(e) { var index = this.items.indexOf(e.model.item); this.items.splice(index,
-            1); this.$.grid.clearCache(); } });
+            import './common.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-crud',
+            properties: { editing: Object }, ready: function() { this.editing = null; }, _storeFirst: function(e) { this._first
+            = e.target.value; }, _storeLast: function(e) { this._last = e.target.value; }, _isEditing: function(editing,
+            item) { return item === editing; }, _edit: function(e) { var item = e.model.item; this.editing = item; this._first
+            = item.name.first; this._last = item.name.last; this.$.grid.querySelector('#first-' + e.model.index).focus();
+            }, _save: function(e) { var item = e.model.item; item.name.first = this._first; item.name.last = this._last;
+            this.editing = null; this.$.grid.clearCache(); }, _cancel: function() { this.editing = null; this.$.grid.clearCache();
+            }, _add: function(e) { if (this.$.firstname.value !== '' && this.$.lastname.value !== '') { this.items.unshift({name:
+            {first: this.$.firstname.value, last: this.$.lastname.value}}); this.$.grid.clearCache(); this.$.firstname.value
+            = ''; this.$.lastname.value = ''; } else { alert('First Name and Last Name required'); } }, _remove: function(e)
+            { var index = this.items.indexOf(e.model.item); this.items.splice(index, 1); this.$.grid.clearCache(); } });
           </script>
         </dom-module>
       </template>

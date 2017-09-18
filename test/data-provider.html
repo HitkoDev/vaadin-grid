@@ -1,22 +1,17 @@
 <!doctype html>
-
 <html>
 
 <head>
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
-
   <script type="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
-
   <dom-module id="x-grid">
     <template>
       <style>
@@ -34,25 +29,15 @@
       </vaadin-grid>
     </template>
     <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'x-grid',
-
-  properties: {
-    dataProvider: Object
-  }
-});
-</script>
+      import './helpers.js'; import '../vaadin-grid.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js';
+      Polymer({ is: 'x-grid', properties: { dataProvider: Object } });
+    </script>
   </dom-module>
-
   <test-fixture id="table">
     <template>
       <x-grid></x-grid>
     </template>
   </test-fixture>
-
   <test-fixture id="grid">
     <template>
       <vaadin-grid>
@@ -62,255 +47,58 @@ Polymer({
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <x-grid style="visibility: hidden;"></x-grid>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { Base } from '../../@polymer/polymer.js';
-import { flush } from '../../@polymer/lib/legacy/polymer.dom.js';
-import { Settings } from '../../@polymer/lib/utils/settings.js';
-function simulateScrollToStart(grid, done) {
-  // make sure not over scroll more than the delta threshold limit of 10k.
-  var table = grid.$.scroller.$.table;
-
-  var handler = function() {
-    if (grid.$.scroller.$.table.scrollTop > 0) {
-      table.scrollTop -= 2500;
-    } else {
-      table.removeEventListener('scroll', handler);
-      Base.async(done, 100);
-    }
-  };
-
-  table.addEventListener('scroll', handler);
-  table.scrollTop -= 2500;
-}
-
-function simulateScrollToEnd(grid, done) {
-  // make sure not over scroll more than the delta threshold limit of 10k.
-  var table = grid.$.scroller.$.table;
-
-  var handler = function() {
-    if (table.scrollTop < table.scrollHeight - table.clientHeight - 1) {
-      table.scrollTop += 2500;
-    } else {
-      table.removeEventListener('scroll', handler);
-      Base.async(done, 100);
-    }
-  };
-
-  table.addEventListener('scroll', handler);
-  table.scrollTop += 2500;
-}
-
-describe('data-provider', function() {
-  var container, grid;
-  var loadDebounceTime = 100;
-
-  beforeEach(function(done) {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    container = fixture('table');
-    grid = container.$.grid;
-
-    container.dataProvider = sinon.spy(infiniteDataProvider);
-    grid.async(done, 1);
-  });
-
-  it('should call dataprovider for first page', function(done) {
-    container.dataProvider.reset();
-    grid.pageSize = 100;
-
-    grid.async(function() {
-      expect(container.dataProvider.callCount).to.eql(1);
-      expect(container.dataProvider.firstCall.args[0].page).to.eql(0);
-      done();
-    }, loadDebounceTime);
-  });
-
-  it('should call dataprovider multiple times to load all items', function(done) {
-    container.dataProvider.reset();
-    grid.pageSize = 10;
-
-    grid.async(function() {
-      // assuming grid has about 30 items
-      expect(container.dataProvider.callCount).to.be.above(2);
-      for (var i = 0; i < container.dataProvider.callCount; i++) {
-        expect(container.dataProvider.getCall(i).args[0].page).to.eql(i);
-      }
-      done();
-    }, loadDebounceTime);
-  });
-
-  it('should always load visible items', function(done) {
-    grid.pageSize = 10;
-
-    grid.async(function() {
-      container.dataProvider.reset();
-      simulateScrollToEnd(grid, function() {
-        grid.async(function() {
-          // 9 is last page out of 100 items / 10 per page.
-          var pages = container.dataProvider.getCalls().map(function(call) {
-            return call.args[0].page;
-          });
-          expect(pages).to.contain.members([7, 8, 9]);
-          done();
-        }, loadDebounceTime);
-      });
-    }, loadDebounceTime);
-  });
-
-  it('should cache fetched pages', function(done) {
-    grid.pageSize = 10;
-    // wait first to initially load first pages.
-    grid.async(function() {
-      simulateScrollToEnd(grid, function() {
-        container.dataProvider.reset();
-        simulateScrollToStart(grid, function() {
-          grid.async(function() {
-            var pages = container.dataProvider.getCalls().map(function(call) {
-              return call.args[0].page;
-            });
-            expect(pages).not.to.contain(0);
-            done();
-          }, loadDebounceTime);
-        });
-      });
-    }, loadDebounceTime);
-  });
-
-  it('should bind item to templates', function() {
-    container.dataProvider = infiniteDataProvider;
-    expect(getCellContent(getFirstCell(grid)).textContent.trim()).to.equal('foo0');
-  });
-
-  it('should clear item cache', function(done) {
-    container.dataProvider = sinon.spy(infiniteDataProvider);
-
-    grid.async(function() {
-      expect(container.dataProvider.called).to.be.true;
-      var oldFirstItem = grid._cache[0];
-      expect(oldFirstItem).to.be.ok;
-
-      container.dataProvider.reset();
-      grid.clearCache();
-
-      grid.async(function() {
-        expect(container.dataProvider.called).to.be.true;
-        expect(grid._cache[0]).to.be.ok;
-        expect(grid._cache[0]).not.to.equal(oldFirstItem);
-        done();
-      }, loadDebounceTime * 2);
-    }, loadDebounceTime * 2);
-  });
-
-  it('should apply `loading` attribute to scroller', function(done) {
-    container.dataProvider = function(params, callback) {
-      expect(grid.$.scroller.hasAttribute('loading')).to.be.true;
-
-      // prevent done from being multiple times.
-      grid.debounce('done', function() {
-        done();
-      });
-    };
-  });
-
-  it('should not set virtual scroll position to 0 on size change', function() {
-    scrollToEnd(grid);
-    grid.size = 500;
-    expect(grid.$.scroller._physicalTop).not.to.equal(0);
-    expect(grid.$.scroller._virtualStart).not.to.equal(0);
-  });
-
-  it('should scroll to last index if size decreased beyond current viewport', function() {
-    grid.size = 5000000;
-    flush();
-    scrollToEnd(grid);
-    expect(grid.$.scroller.lastVisibleIndex + grid.$.scroller._vidxOffset).to.equal(grid.size - 1);
-
-    grid.size = 50;
-    flush();
-    expect(grid.$.scroller.lastVisibleIndex + grid.$.scroller._vidxOffset).to.equal(grid.size - 1);
-
-    // Test actual last visible item
-    var rect = grid.getBoundingClientRect();
-    var scope = Settings.useShadow ? grid.domHost.root : document;
-    var lastVisibleItem = scope.elementFromPoint(rect.left + 10, rect.bottom - 10);
-    expect(lastVisibleItem.innerText.trim()).to.equal('foo' + (grid.size - 1));
-  });
-});
-
-describe('set manually', function() {
-
-  var grid;
-
-  beforeEach(function() {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('grid');
-    flush();
-  });
-
-  it('should warn about missing size', function() {
-    var _warn = console.warn;
-    var spy = console.warn = sinon.spy();
-
-    grid.dataProvider = infiniteDataProvider;
-    grid.flushDebouncer('check-size');
-    console.warn = _warn;
-
-    expect(spy.called).to.be.true;
-  });
-
-  it('should not warn about missing size', function() {
-    var _warn = console.warn;
-    var spy = console.warn = sinon.spy();
-
-    grid.dataProvider = infiniteDataProvider;
-    grid.size = 1;
-    grid.flushDebouncer('check-size');
-    console.warn = _warn;
-
-    expect(spy.called).to.be.false;
-  });
-
-  it('should work with data provider set before size', function() {
-    grid.dataProvider = infiniteDataProvider;
-    grid.size = 3;
-    expect(getRows(grid.$.items)).to.have.length(3);
-  });
-
-  it('should work with data provider set after a long delay', function(done) {
-    grid.size = 100;
-
-    grid.async(function() {
-      grid.dataProvider = sinon.spy(infiniteDataProvider);
-
-      expect(grid.dataProvider.callCount).to.eql(1);
-      expect(grid.dataProvider.args[0][0].page).to.eql(0);
-      done();
-    }, 1000);
-  });
-
-  it('should not request negative pages', function() {
-    this.timeout(30000);
-    
-    grid.dataProvider = sinon.spy(infiniteDataProvider);
-    grid.size = 10;
-
-    for (var i = 0; i < grid.dataProvider.callCount; i++) {
-      var page = grid.dataProvider.getCall(i).args[0].page;
-      expect(page).to.be.above(-1);
-    }
-  });
-
-});
-</script>
-
+    import './helpers.js'; import '../vaadin-grid.js'; import { Base } from '../../@polymer/polymer/polymer.js'; import { flush
+    } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; import { Settings } from '../../@polymer/polymer/lib/utils/settings.js';
+    function simulateScrollToStart(grid, done) { // make sure not over scroll more than the delta threshold limit of 10k.
+    var table = grid.$.scroller.$.table; var handler = function() { if (grid.$.scroller.$.table.scrollTop > 0) { table.scrollTop
+    -= 2500; } else { table.removeEventListener('scroll', handler); Base.async(done, 100); } }; table.addEventListener('scroll',
+    handler); table.scrollTop -= 2500; } function simulateScrollToEnd(grid, done) { // make sure not over scroll more than
+    the delta threshold limit of 10k. var table = grid.$.scroller.$.table; var handler = function() { if (table.scrollTop
+    < table.scrollHeight - table.clientHeight - 1) { table.scrollTop +=2 500; } else { table.removeEventListener(
+      'scroll', handler); Base.async(done, 100); } }; table.addEventListener( 'scroll', handler); table.scrollTop +=2 500; } describe(
+      'data-provider', function() { var container, grid; var loadDebounceTime=1 00; beforeEach(function(done) { // The before each block
+      times out in CI with Firefox on Polymer 2 this.timeout(30000); container=f ixture( 'table'); grid=c ontainer.$.grid;
+      container.dataProvider=s inon.spy(infiniteDataProvider); grid.async(done, 1); }); it(
+      'should call dataprovider for first page', function(done) { container.dataProvider.reset(); grid.pageSize=1 00; grid.async(function() { expect(container.dataProvider.callCount).to.eql(1);
+      expect(container.dataProvider.firstCall.args[0].page).to.eql(0); done(); }, loadDebounceTime); }); it(
+      'should call dataprovider multiple times to load all items', function(done) { container.dataProvider.reset(); grid.pageSize=1 0; grid.async(function() { // assuming grid has about
+      30 items expect(container.dataProvider.callCount).to.be.above(2); for (var i=0 ; i < container.dataProvider.callCount;
+      i++) { expect(container.dataProvider.getCall(i).args[0].page).to.eql(i); } done(); }, loadDebounceTime); }); it(
+      'should always load visible items', function(done) { grid.pageSize=1 0; grid.async(function() { container.dataProvider.reset(); simulateScrollToEnd(grid,
+      function() { grid.async(function() { // 9 is last page out of 100 items / 10 per page. var pages=c ontainer.dataProvider.getCalls().map(function(call)
+      { return call.args[0].page; }); expect(pages).to.contain.members([7, 8, 9]); done(); }, loadDebounceTime); }); }, loadDebounceTime);
+      }); it( 'should cache fetched pages', function(done) { grid.pageSize=1 0; // wait first to initially load first pages.
+      grid.async(function() { simulateScrollToEnd(grid, function() { container.dataProvider.reset(); simulateScrollToStart(grid,
+      function() { grid.async(function() { var pages=c ontainer.dataProvider.getCalls().map(function(call) { return call.args[0].page;
+      }); expect(pages).not.to.contain(0); done(); }, loadDebounceTime); }); }); }, loadDebounceTime); }); it(
+      'should bind item to templates', function() { container.dataProvider=i nfiniteDataProvider; expect(getCellContent(getFirstCell(grid)).textContent.trim()).to.equal(
+      'foo0'); }); it( 'should clear item cache', function(done) { container.dataProvider=s inon.spy(infiniteDataProvider); grid.async(function()
+      { expect(container.dataProvider.called).to.be.true; var oldFirstItem=g rid._cache[0]; expect(oldFirstItem).to.be.ok;
+      container.dataProvider.reset(); grid.clearCache(); grid.async(function() { expect(container.dataProvider.called).to.be.true;
+      expect(grid._cache[0]).to.be.ok; expect(grid._cache[0]).not.to.equal(oldFirstItem); done(); }, loadDebounceTime * 2);
+      }, loadDebounceTime * 2); }); it( 'should apply `loading` attribute to scroller', function(done) { container.dataProvider=f
+      unction(params, callback) { expect(grid.$.scroller.hasAttribute( 'loading')).to.be.true; // prevent done from being multiple
+      times. grid.debounce( 'done', function() { done(); }); }; }); it(
+      'should not set virtual scroll position to 0 on size change', function() { scrollToEnd(grid); grid.size=5 00; expect(grid.$.scroller._physicalTop).not.to.equal(0); expect(grid.$.scroller._virtualStart).not.to.equal(0);
+      }); it( 'should scroll to last index if size decreased beyond current viewport', function() { grid.size=5 000000; flush();
+      scrollToEnd(grid); expect(grid.$.scroller.lastVisibleIndex + grid.$.scroller._vidxOffset).to.equal(grid.size - 1); grid.size=5
+      0; flush(); expect(grid.$.scroller.lastVisibleIndex + grid.$.scroller._vidxOffset).to.equal(grid.size - 1); // Test actual
+      last visible item var rect=g rid.getBoundingClientRect(); var scope=S ettings.useShadow ? grid.domHost.root : document;
+      var lastVisibleItem=s cope.elementFromPoint(rect.left + 10, rect.bottom - 10); expect(lastVisibleItem.innerText.trim()).to.equal(
+      'foo' + (grid.size - 1)); }); }); describe( 'set manually', function() { var grid; beforeEach(function() { // The before
+      each block times out in CI with Firefox on Polymer 2 this.timeout(30000); grid=f ixture( 'grid'); flush(); }); it(
+      'should warn about missing size', function() { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); grid.dataProvider=i nfiniteDataProvider;
+      grid.flushDebouncer( 'check-size'); console.warn=_ warn; expect(spy.called).to.be.true; }); it(
+      'should not warn about missing size', function() { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); grid.dataProvider=i nfiniteDataProvider;
+      grid.size=1 ; grid.flushDebouncer( 'check-size'); console.warn=_ warn; expect(spy.called).to.be.false; }); it(
+      'should work with data provider set before size', function() { grid.dataProvider=i nfiniteDataProvider; grid.size=3 ; expect(getRows(grid.$.items)).to.have.length(3);
+      }); it( 'should work with data provider set after a long delay', function(done) { grid.size=1 00; grid.async(function()
+      { grid.dataProvider=s inon.spy(infiniteDataProvider); expect(grid.dataProvider.callCount).to.eql(1); expect(grid.dataProvider.args[0][0].page).to.eql(0);
+      done(); }, 1000); }); it( 'should not request negative pages', function() { this.timeout(30000); grid.dataProvider=s
+      inon.spy(infiniteDataProvider); grid.size=1 0; for (var i=0 ; i < grid.dataProvider.callCount; i++) { var page=g rid.dataProvider.getCall(i).args[0].page;
+      expect(page).to.be.above(-1); } }); }); </script>
 </body>
 
 </html>

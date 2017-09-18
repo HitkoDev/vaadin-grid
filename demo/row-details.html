@@ -130,7 +130,7 @@
             </vaadin-grid>
           </template>
           <script type="module">
-            import '../../paper-checkbox/paper-checkbox.js'; import './common.js'; import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js';
+            import '../../paper-checkbox/paper-checkbox.js'; import './common.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js';
             Polymer({ is: 'bind-expanded-items', _onActiveItemChanged: function(e) { this.$.grid.expandedItems = [e.detail.value];
             } });
           </script>

@@ -4,16 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
-  <script type="module" src="../../@polymer/polymer.js"></script>
+  <script type="module" src="../../@polymer/polymer/polymer.js"></script>
   <script type="module" src="./helpers.js"></script>
 </head>
 
 <body>
-
   <test-fixture id="default">
     <template>
       <vaadin-grid style="width: 200px; height: 200px;" size="1000">
@@ -23,36 +20,13 @@
       </vaadin-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import { Base } from '../../@polymer/polymer.js';
-import './helpers.js';
-describe('basic features', function() {
-  var scroller, grid;
-
-  beforeEach(function() {
-    // The before each block times out in CI with Firefox on Polymer 2
-    this.timeout(30000);
-
-    grid = fixture('default');
-    grid.dataProvider = infiniteDataProvider;
-  });
-
-  it('check physical item heights', function(done) {
-    var _error = console.error;
-    var spy = console.error = sinon.spy();
-    Base.importHref('../vaadin-grid.html', function() {
-      animationFrameFlush(function() {
-        console.error = _error;
-        expect(spy.called).to.be.false;
-        done();
-      });
-    });
-  });
-
-});
-</script>
-
+    import { Base } from '../../@polymer/polymer/polymer.js'; import './helpers.js'; describe('basic features', function() {
+    var scroller, grid; beforeEach(function() { // The before each block times out in CI with Firefox on Polymer 2 this.timeout(30000);
+    grid = fixture('default'); grid.dataProvider = infiniteDataProvider; }); it('check physical item heights', function(done)
+    { var _error = console.error; var spy = console.error = sinon.spy(); Base.importHref('../vaadin-grid.html', function()
+    { animationFrameFlush(function() { console.error = _error; expect(spy.called).to.be.false; done(); }); }); }); });
+  </script>
 </body>
 
 </html>

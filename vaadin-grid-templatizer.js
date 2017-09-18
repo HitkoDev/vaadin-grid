@@ -1,6 +1,6 @@
-import '../@polymer/polymer.js';
-import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
-import { Templatizer as Templatizer$0 } from '../@polymer/lib/legacy/templatizer-behavior.js';
+import '../@polymer/polymer/polymer.js';
+import { Polymer } from '../@polymer/polymer/lib/legacy/polymer-fn.js';
+import { Templatizer as Templatizer$0 } from '../@polymer/polymer/lib/legacy/templatizer-behavior.js';
 import { Element } from '../@polymer/polymer-element.js';
 window.vaadin = window.vaadin || {};
 vaadin.elements = vaadin.elements || {};

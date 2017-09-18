@@ -96,7 +96,7 @@
           </template>
           <script type="module">
             import '../vaadin-grid-sorter.js'; import '../vaadin-grid-filter.js'; import '../../paper-checkbox/paper-checkbox.js'; import
-            './common.js'; import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-remote-sorting-example',
+            './common.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-remote-sorting-example',
             ready: function() { var grid = this.$.grid; grid.size = 200; grid.dataProvider = function(params, callback) {
             var xhr = new XMLHttpRequest(); xhr.onload = function() { callback(JSON.parse(xhr.responseText).result); }; var
             index = params.page * params.pageSize; var url = 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index
@@ -187,7 +187,7 @@
           </template>
           <script type="module">
             import '../vaadin-grid-sorter.js'; import '../vaadin-grid-filter.js'; import '../../paper-checkbox/paper-checkbox.js'; import
-            './common.js'; import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-remote-filtering-example',
+            './common.js'; import { Polymer } from '../../@polymer/polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-remote-filtering-example',
             ready: function() { var grid = this.$.grid; grid.size = 200; grid.dataProvider = function(params, callback) {
             var xhr = new XMLHttpRequest(); xhr.onload = function() { var response = JSON.parse(xhr.responseText); // Number
             of items changes after filtering. We need // to update the grid size based on server response. grid.size = response.size;

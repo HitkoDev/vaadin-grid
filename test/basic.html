@@ -21,11 +21,11 @@
     </template>
   </test-fixture>
   <script type="module">
-    import './helpers.js'; import '../vaadin-grid.js'; import { Base } from '../../@polymer/polymer.js'; import { flush as flush$0,
-    dom } from '../../@polymer/lib/legacy/polymer.dom.js'; describe('basic features', function() { var scroller, grid; beforeEach(function(done)
-    { // The before each block times out in CI with Firefox on Polymer 2 this.timeout(30000); grid = fixture('default');
-    grid.dataProvider = infiniteDataProvider; scroller = grid.$.scroller; Base.async(done, 1); }); it('check physical item
-    heights', function() { var rowHeight = scroller._physicalItems[0].offsetHeight; scroller._physicalItems.forEach(function(item)
+    import './helpers.js'; import '../vaadin-grid.js'; import { Base } from '../../@polymer/polymer/polymer.js'; import { flush
+    as flush$0, dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js'; describe('basic features', function() { var
+    scroller, grid; beforeEach(function(done) { // The before each block times out in CI with Firefox on Polymer 2 this.timeout(30000);
+    grid = fixture('default'); grid.dataProvider = infiniteDataProvider; scroller = grid.$.scroller; Base.async(done, 1);
+    }); it('check physical item heights', function() { var rowHeight = scroller._physicalItems[0].offsetHeight; scroller._physicalItems.forEach(function(item)
     { expect(item.offsetHeight).to.equal(rowHeight); }); }); it('check visible item count', function() { scroller.size =
     10; flush$0(); expect(dom(grid.root).querySelectorAll('vaadin-grid-table-body .vaadin-grid-row:not([hidden])').length).to.eql(10);
     }); it('first visible index', function() { expect(scroller.firstVisibleIndex).to.equal(0); scroller.scroll(0, scroller._physicalAverage
@@ -48,16 +48,15 @@
     { scroller.$.table.scrollTop = 5000 + scroller._physicalAverage * steps; scroller._scrollHandler(); scroller.flushDebouncer('_debounceTemplate');
     scroller.flushDebouncer('vaadin-grid-scrolling'); // Expect the physical rows to be in order after scrolling var rows
     = dom(grid.$.items).querySelectorAll('.vaadin-grid-row'); for (var i = 1; i
-    < rows.length; i++) { expect(rows[i].index).to.equal(rows[i
-      - 1].index + 1); } }); }); it( 'reorder should not affect light dom', function() { scroller.size=1 00000; var wrappers=d
-      om(grid).querySelectorAll( 'vaadin-grid-cell-content'); [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144].forEach(function(steps)
-      { scroller.$.table.scrollTop=5 000 + scroller._physicalAverage * steps; scroller._scrollHandler(); scroller.flushDebouncer(
-      '_debounceTemplate'); scroller.flushDebouncer( 'vaadin-grid-scrolling'); var newWrappers=d om(grid).querySelectorAll(
-      'vaadin-grid-cell-content'); // Expect the light dom order unchanged expect(newWrappers).to.eql(wrappers); }); }); it(
-      'should warn about missing imports', function() { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); dom(grid).appendChild(document.createElement(
-      'vaadin-grid-sorter')); dom(grid).appendChild(document.createElement( 'vaadin-grid-sorter')); grid.flushDebouncer( 'check-imports'); console.warn=_
-      warn; expect(spy.callCount).to.equal(1); }); it( 'should warn about missing imports after adding new content', function()
-      { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); grid.flushDebouncer( 'check-imports'); dom(grid).appendChild(document.createElement(
+    < rows.length; i++) { expect(rows[i].index).to.equal(rows[i - 1].index + 1); } }); }); it(
+      'reorder should not affect light dom', function() { scroller.size=1 00000; var wrappers=d om(grid).querySelectorAll( 'vaadin-grid-cell-content'); [1, 1,
+      2, 3, 5, 8, 13, 21, 34, 55, 89, 144].forEach(function(steps) { scroller.$.table.scrollTop=5 000 + scroller._physicalAverage
+      * steps; scroller._scrollHandler(); scroller.flushDebouncer( '_debounceTemplate'); scroller.flushDebouncer(
+      'vaadin-grid-scrolling'); var newWrappers=d om(grid).querySelectorAll( 'vaadin-grid-cell-content'); // Expect the light dom order unchanged
+      expect(newWrappers).to.eql(wrappers); }); }); it( 'should warn about missing imports', function() { var _warn=c onsole.warn;
+      var spy=c onsole.warn=s inon.spy(); dom(grid).appendChild(document.createElement( 'vaadin-grid-sorter')); dom(grid).appendChild(document.createElement(
+      'vaadin-grid-sorter')); grid.flushDebouncer( 'check-imports'); console.warn=_ warn; expect(spy.callCount).to.equal(1); }); it(
+      'should warn about missing imports after adding new content', function() { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); grid.flushDebouncer( 'check-imports'); dom(grid).appendChild(document.createElement(
       'vaadin-grid-sorter')); flush$0(); if (grid._observer.flush) { grid._observer.flush(); } grid.flushDebouncer( 'check-imports'); console.warn=_
       warn; expect(spy.called).to.be.true; }); it( 'should not warn about missing imports', function(done) { Base.importHref(
       '../vaadin-grid-sorter.html', function() { var _warn=c onsole.warn; var spy=c onsole.warn=s inon.spy(); dom(grid).appendChild(document.createElement(
