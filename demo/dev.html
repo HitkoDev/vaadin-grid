@@ -9,13 +9,13 @@
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-    <link rel="import" href="../vaadin-grid.html">
-    <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-    <link rel="import" href="../../paper-input/paper-input.html">
-    <link rel="import" href="../vaadin-grid-filter.html">
-    <link rel="import" href="../vaadin-grid-sorter.html">
-    <link rel="import" href="../vaadin-grid-column-group.html">
-    <link rel="import" href="x-data-provider.html">
+    <script type="module" src="../vaadin-grid.js"></script>
+    <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
+    <script type="module" src="../../paper-input/paper-input.js"></script>
+    <script type="module" src="../vaadin-grid-filter.js"></script>
+    <script type="module" src="../vaadin-grid-sorter.js"></script>
+    <script type="module" src="../vaadin-grid-column-group.js"></script>
+    <script type="module" src="./x-data-provider.js"></script>
 
 
     <style>
@@ -165,19 +165,25 @@
           </vaadin-grid-column-group>
         </vaadin-grid>
       </template>
-      <script>
-        document.addEventListener('WebComponentsReady', function() {
-          Polymer({
-            is: 'x-app',
+      <script type="module">
+import '../vaadin-grid.js';
+import '../../paper-checkbox/paper-checkbox.js';
+import '../../paper-input/paper-input.js';
+import '../vaadin-grid-filter.js';
+import '../vaadin-grid-sorter.js';
+import '../vaadin-grid-column-group.js';
+import './x-data-provider.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-app',
 
-            properties: {
-              items: {
-                value: window.users.results
-              }
-            }
-          });
-        });
-      </script>
+  properties: {
+    items: {
+      value: window.users.results
+    }
+  }
+});
+</script>
     </dom-module>
 
     <x-app></x-app>

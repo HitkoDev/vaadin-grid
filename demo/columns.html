@@ -10,13 +10,13 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../../iron-image/iron-image.html">
-  <link rel="import" href="../../iron-media-query/iron-media-query.html">
-  <link rel="import" href="../vaadin-grid-column-group.html">
-  <link rel="import" href="../vaadin-grid-sorter.html">
+  <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
+  <script type="module" src="../../iron-image/iron-image.js"></script>
+  <script type="module" src="../../iron-media-query/iron-media-query.js"></script>
+  <script type="module" src="../vaadin-grid-column-group.js"></script>
+  <script type="module" src="../vaadin-grid-sorter.js"></script>
 
-  <link rel="import" href="common.html">
+  <script type="module" src="./common.js"></script>
 
   <custom-style>
     <style is="custom-style">
@@ -306,21 +306,26 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-dynamic-columns',
+          <script type="module">
+import '../../paper-checkbox/paper-checkbox.js';
+import '../../iron-image/iron-image.js';
+import '../../iron-media-query/iron-media-query.js';
+import '../vaadin-grid-column-group.js';
+import '../vaadin-grid-sorter.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-dynamic-columns',
 
-                properties: {
-                  columns: Array
-                },
+  properties: {
+    columns: Array
+  },
 
-                ready: function() {
-                  this.columns = ['name.first', 'name.last', 'email'];
-                }
-              });
-            });
-          </script>
+  ready: function() {
+    this.columns = ['name.first', 'name.last', 'email'];
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>

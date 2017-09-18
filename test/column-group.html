@@ -9,8 +9,8 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid-column-group.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid-column-group.js"></script>
 </head>
 <body>
 
@@ -29,13 +29,14 @@
         </vaadin-grid-column>
       </vaadin-grid>
     </template>
-    <script>
-      document.addEventListener('WebComponentsReady', function() {
-        Polymer({
-          is: 'x-grid'
-        });
-      });
-    </script>
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid-column-group.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-grid'
+});
+</script>
   </dom-module>
 
   <test-fixture id="grid">
@@ -61,230 +62,234 @@
     </template>
   </test-fixture>
 
-  <script>
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid-column-group.js';
+import { dom, flush as flush$0 } from '../../polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../../polymer/polymer-element.js';
 
-    describe('column group', function() {
-      var group;
-      var columns;
-      beforeEach(function(done) {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+describe('column group', function() {
+  var group;
+  var columns;
+  beforeEach(function(done) {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-        group = fixture('group');
-        columns = group.querySelectorAll('vaadin-grid-column');
+    group = fixture('group');
+    columns = group.querySelectorAll('vaadin-grid-column');
 
-        group.async(done, 100);
-      });
+    group.async(done, 100);
+  });
 
-      it('should sum child column flex-grow', function() {
-        expect(group.flexGrow).to.eql(3);
-      });
+  it('should sum child column flex-grow', function() {
+    expect(group.flexGrow).to.eql(3);
+  });
 
-      it('should sum child column widths', function() {
-        expect(group.width).to.eql('calc(20% + 200px)');
-      });
+  it('should sum child column widths', function() {
+    expect(group.width).to.eql('calc(20% + 200px)');
+  });
 
-      it('should strip nested `calc` keywords', function() {
-        columns[0].width = 'calc(50% + 10px)';
+  it('should strip nested `calc` keywords', function() {
+    columns[0].width = 'calc(50% + 10px)';
 
-        expect(group.width).to.eql('calc((50% + 10px) + 200px)');
-      });
+    expect(group.width).to.eql('calc((50% + 10px) + 200px)');
+  });
 
-      it('should react to child column flex-grow changes', function() {
-        columns[0].flexGrow = 3;
+  it('should react to child column flex-grow changes', function() {
+    columns[0].flexGrow = 3;
 
-        expect(group.flexGrow).to.eql(5);
-      });
+    expect(group.flexGrow).to.eql(5);
+  });
 
-      it('should react to child column width changes', function() {
-        columns[0].width = '10%';
+  it('should react to child column width changes', function() {
+    columns[0].width = '10%';
 
-        expect(group.width).to.eql('calc(10% + 200px)');
-      });
+    expect(group.width).to.eql('calc(10% + 200px)');
+  });
 
-      it('should stop template from a child from propagating', function() {
-        var spy = sinon.spy();
-        group.addEventListener('property-changed', spy);
+  it('should stop template from a child from propagating', function() {
+    var spy = sinon.spy();
+    group.addEventListener('property-changed', spy);
 
-        columns[0].template = document.createElement('template');
+    columns[0].template = document.createElement('template');
 
-        expect(spy.callCount).to.eql(0);
-      });
+    expect(spy.callCount).to.eql(0);
+  });
 
-      it('should get frozen when child column freezes', function() {
-        columns[0].frozen = true;
+  it('should get frozen when child column freezes', function() {
+    columns[0].frozen = true;
 
-        expect(group.frozen).to.be.true;
-      });
+    expect(group.frozen).to.be.true;
+  });
 
-      // this test is aimed for Safari 9, see #552
-      it('should propagate frozen from children when attached', function() {
-        var parent = group.parentElement;
-        Polymer.dom(parent).removeChild(group);
+  // this test is aimed for Safari 9, see #552
+  it('should propagate frozen from children when attached', function() {
+    var parent = group.parentElement;
+    dom(parent).removeChild(group);
 
-        columns[0].frozen = true;
+    columns[0].frozen = true;
 
-        Polymer.dom(parent).appendChild(group);
-        Polymer.dom.flush();
+    dom(parent).appendChild(group);
+    flush$0();
 
-        expect(group.frozen).to.be.true;
-      });
+    expect(group.frozen).to.be.true;
+  });
 
-      it('should propagate frozen to child columns', function() {
-        columns[0].frozen = false;
-        group.frozen = true;
+  it('should propagate frozen to child columns', function() {
+    columns[0].frozen = false;
+    group.frozen = true;
 
-        expect(columns[0].frozen).to.be.true;
-        expect(columns[1].frozen).to.be.true;
-      });
+    expect(columns[0].frozen).to.be.true;
+    expect(columns[1].frozen).to.be.true;
+  });
 
-      it('should hide group column', function() {
-        columns[0].hidden = true;
-        columns[1].hidden = true;
+  it('should hide group column', function() {
+    columns[0].hidden = true;
+    columns[1].hidden = true;
 
-        expect(group.hidden).to.be.true;
-      });
+    expect(group.hidden).to.be.true;
+  });
 
-      it('should unhide group column', function() {
-        group.hidden = true;
-        columns[0].hidden = false;
+  it('should unhide group column', function() {
+    group.hidden = true;
+    columns[0].hidden = false;
 
-        expect(group.hidden).to.be.false;
-      });
+    expect(group.hidden).to.be.false;
+  });
 
-      it('should not unhide other columns', function() {
-        group.hidden = true;
-        columns[0].hidden = false;
+  it('should not unhide other columns', function() {
+    group.hidden = true;
+    columns[0].hidden = false;
 
-        expect(columns[1].hidden).to.be.true;
-      });
+    expect(columns[1].hidden).to.be.true;
+  });
 
-      it('should propagate hidden to child columns', function() {
-        columns[0].hidden = false;
-        group.hidden = true;
+  it('should propagate hidden to child columns', function() {
+    columns[0].hidden = false;
+    group.hidden = true;
 
-        expect(columns[0].hidden).to.be.true;
-        expect(columns[1].hidden).to.be.true;
-        expect(group.hidden).to.be.true;
-      });
+    expect(columns[0].hidden).to.be.true;
+    expect(columns[1].hidden).to.be.true;
+    expect(group.hidden).to.be.true;
+  });
 
-      it('should propagate hidden to child columns 2', function() {
-        group.hidden = true;
-        group.hidden = false;
+  it('should propagate hidden to child columns 2', function() {
+    group.hidden = true;
+    group.hidden = false;
 
-        expect(columns[0].hidden).to.be.false;
-        expect(columns[1].hidden).to.be.false;
-        expect(group.hidden).to.be.false;
-      });
+    expect(columns[0].hidden).to.be.false;
+    expect(columns[1].hidden).to.be.false;
+    expect(group.hidden).to.be.false;
+  });
 
-      it('should hide the group', function() {
-        Polymer.dom(group).removeChild(columns[0]);
-        Polymer.dom(group).removeChild(columns[1]);
-        Polymer.dom.flush();
+  it('should hide the group', function() {
+    dom(group).removeChild(columns[0]);
+    dom(group).removeChild(columns[1]);
+    flush$0();
 
-        if (Polymer.Element) {
-          group._observer.flush();
-        }
+    if (Element) {
+      group._observer.flush();
+    }
 
-        expect(group.hidden).to.be.true;
-      });
+    expect(group.hidden).to.be.true;
+  });
 
-      it('should unhide the group', function() {
-        Polymer.dom(group).removeChild(columns[0]);
-        Polymer.dom(group).removeChild(columns[1]);
-        Polymer.dom.flush();
+  it('should unhide the group', function() {
+    dom(group).removeChild(columns[0]);
+    dom(group).removeChild(columns[1]);
+    flush$0();
 
-        if (Polymer.Element) {
-          group._observer.flush();
-        }
+    if (Element) {
+      group._observer.flush();
+    }
 
-        Polymer.dom(group).appendChild(columns[0]);
-        Polymer.dom.flush();
+    dom(group).appendChild(columns[0]);
+    flush$0();
 
-        if (Polymer.Element) {
-          group._observer.flush();
-        }
+    if (Element) {
+      group._observer.flush();
+    }
 
-        expect(group.hidden).to.be.false;
-      });
+    expect(group.hidden).to.be.false;
+  });
 
-      it('should not unhide the group', function() {
-        Polymer.dom(group).removeChild(columns[0]);
-        Polymer.dom(group).removeChild(columns[1]);
-        Polymer.dom.flush();
+  it('should not unhide the group', function() {
+    dom(group).removeChild(columns[0]);
+    dom(group).removeChild(columns[1]);
+    flush$0();
 
-        if (Polymer.Element) {
-          group._observer.flush();
-        }
+    if (Element) {
+      group._observer.flush();
+    }
 
-        columns[0].hidden = true;
-        Polymer.dom(group).appendChild(columns[0]);
-        Polymer.dom.flush();
+    columns[0].hidden = true;
+    dom(group).appendChild(columns[0]);
+    flush$0();
 
-        if (Polymer.Element) {
-          group._observer.flush();
-        }
+    if (Element) {
+      group._observer.flush();
+    }
 
-        expect(group.hidden).to.be.true;
-      });
+    expect(group.hidden).to.be.true;
+  });
 
-      it('should notify header cell for hidden', function(done) {
+  it('should notify header cell for hidden', function(done) {
 
-        group.addEventListener('property-changed', function(e) {
-          if (e.detail.path === 'hidden' && e.target === columns[0]) {
-            expect(e.detail.value).to.be.true;
-            done();
-          }
-        });
-
-        columns[0].hidden = true;
-      });
-
-      it('should calculate column group width after hiding a column', function() {
-        columns[0].hidden = true;
-
-        expect(group.width).to.eql('calc(200px)');
-      });
-
-      it('should calculate column group flexGrow after hiding a column', function() {
-        columns[0].hidden = true;
-
-        expect(group.flexGrow).to.eql(2);
-      });
-
-      describe('dom observing', function() {
-        it('should pickup header template', function() {
-          var group = document.createElement('vaadin-grid-column-group');
-          var template = document.createElement('template');
-          template.classList.add('header');
-
-          Polymer.dom(group).appendChild(template);
-          if (Polymer.Element) {
-            group._templateObserver.flush();
-          } else {
-            Polymer.dom(group).flush();
-          }
-
-          expect(group.headerTemplate).to.eql(template);
-        });
-
-        it('should pickup footer template', function() {
-          var group = document.createElement('vaadin-grid-column-group');
-          var template = document.createElement('template');
-          template.classList.add('footer');
-
-          Polymer.dom(group).appendChild(template);
-          if (Polymer.Element) {
-            group._templateObserver.flush();
-          } else {
-            Polymer.dom(group).flush();
-          }
-
-          expect(group.footerTemplate).to.eql(template);
-        });
-      });
+    group.addEventListener('property-changed', function(e) {
+      if (e.detail.path === 'hidden' && e.target === columns[0]) {
+        expect(e.detail.value).to.be.true;
+        done();
+      }
     });
-  </script>
+
+    columns[0].hidden = true;
+  });
+
+  it('should calculate column group width after hiding a column', function() {
+    columns[0].hidden = true;
+
+    expect(group.width).to.eql('calc(200px)');
+  });
+
+  it('should calculate column group flexGrow after hiding a column', function() {
+    columns[0].hidden = true;
+
+    expect(group.flexGrow).to.eql(2);
+  });
+
+  describe('dom observing', function() {
+    it('should pickup header template', function() {
+      var group = document.createElement('vaadin-grid-column-group');
+      var template = document.createElement('template');
+      template.classList.add('header');
+
+      dom(group).appendChild(template);
+      if (Element) {
+        group._templateObserver.flush();
+      } else {
+        dom(group).flush();
+      }
+
+      expect(group.headerTemplate).to.eql(template);
+    });
+
+    it('should pickup footer template', function() {
+      var group = document.createElement('vaadin-grid-column-group');
+      var template = document.createElement('template');
+      template.classList.add('footer');
+
+      dom(group).appendChild(template);
+      if (Element) {
+        group._templateObserver.flush();
+      } else {
+        dom(group).flush();
+      }
+
+      expect(group.footerTemplate).to.eql(template);
+    });
+  });
+});
+</script>
 
 </body>
 </html>

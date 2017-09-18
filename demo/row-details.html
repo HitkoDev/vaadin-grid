@@ -10,9 +10,9 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+  <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
 
-  <link rel="import" href="common.html">
+  <script type="module" src="./common.js"></script>
 </head>
 
 <body unresolved>
@@ -149,17 +149,18 @@
             </vaadin-grid>
 
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'bind-expanded-items',
+          <script type="module">
+import '../../paper-checkbox/paper-checkbox.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'bind-expanded-items',
 
-                _onActiveItemChanged: function(e) {
-                  this.$.grid.expandedItems = [e.detail.value];
-                }
-              });
-            });
-          </script>
+  _onActiveItemChanged: function(e) {
+    this.$.grid.expandedItems = [e.detail.value];
+  }
+});
+</script>
         </dom-module>
 
       </template>

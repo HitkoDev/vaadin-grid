@@ -8,7 +8,7 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="../vaadin-grid.html">
+  <script type="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
@@ -19,19 +19,20 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('missing doctype', function() {
+  <script type="module">
+import '../vaadin-grid.js';
+describe('missing doctype', function() {
 
-      it('should call dataprovider for first page', function() {
-        var _warn = console.warn;
-        var spy = console.warn = sinon.spy();
-        fixture('default');
-        console.warn = _warn;
-        expect(spy.called).to.be.true;
-      });
+  it('should call dataprovider for first page', function() {
+    var _warn = console.warn;
+    var spy = console.warn = sinon.spy();
+    fixture('default');
+    console.warn = _warn;
+    expect(spy.called).to.be.true;
+  });
 
-    });
-  </script>
+});
+</script>
 
 </body>
 

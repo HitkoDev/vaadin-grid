@@ -10,10 +10,10 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../paper-button/paper-button.html">
-  <link rel="import" href="../vaadin-grid-selection-column.html">
+  <script type="module" src="../../paper-button/paper-button.js"></script>
+  <script type="module" src="../vaadin-grid-selection-column.js"></script>
 
-  <link rel="import" href="common.html">
+  <script type="module" src="./common.js"></script>
 </head>
 
 <body unresolved>
@@ -46,23 +46,25 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-array-data-example',
+          <script type="module">
+import '../../paper-button/paper-button.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-array-data-example',
 
-                ready: function() {
-                  var items = [];
+  ready: function() {
+    var items = [];
 
-                  for (var i = 0; i < 100; i++) {
-                    items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
-                  }
+    for (var i = 0; i < 100; i++) {
+      items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
+    }
 
-                  this.items = items;
-                }
-              });
-            });
-          </script>
+    this.items = items;
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -103,31 +105,33 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-dynamic-data-example',
+          <script type="module">
+import '../../paper-button/paper-button.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-dynamic-data-example',
 
-                ready: function() {
-                  var items = [];
+  ready: function() {
+    var items = [];
 
-                  for (var i = 0; i < 10; i++) {
-                    items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
-                  }
+    for (var i = 0; i < 10; i++) {
+      items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
+    }
 
-                  this.items = items;
-                },
+    this.items = items;
+  },
 
-                _add: function() {
-                  this.push('items', {firstName: 'First Name ' + this.items.length, lastName: 'Last Name ' + this.items.length});
-                },
+  _add: function() {
+    this.push('items', {firstName: 'First Name ' + this.items.length, lastName: 'Last Name ' + this.items.length});
+  },
 
-                _remove: function() {
-                  this.pop('items');
-                }
-              });
-            });
-          </script>
+  _remove: function() {
+    this.pop('items');
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -173,31 +177,33 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-dynamic-height-example',
+          <script type="module">
+import '../../paper-button/paper-button.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-dynamic-height-example',
 
-                ready: function() {
-                  var items = [];
+  ready: function() {
+    var items = [];
 
-                  for (var i = 0; i < 5; i++) {
-                    items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
-                  }
+    for (var i = 0; i < 5; i++) {
+      items.push({firstName: 'First Name ' + i, lastName: 'Last Name ' + i});
+    }
 
-                  this.items = items;
-                },
+    this.items = items;
+  },
 
-                _add: function() {
-                  this.push('items', {firstName: 'First Name ' + this.items.length, lastName: 'Last Name ' + this.items.length});
-                },
+  _add: function() {
+    this.push('items', {firstName: 'First Name ' + this.items.length, lastName: 'Last Name ' + this.items.length});
+  },
 
-                _remove: function() {
-                  this.pop('items');
-                }
-              });
-            });
-          </script>
+  _remove: function() {
+    this.pop('items');
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -235,27 +241,29 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-remote-data-example',
+          <script type="module">
+import '../../paper-button/paper-button.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-remote-data-example',
 
-                ready: function() {
-                  this.size = 200;
-                  this.dataProvider = function(params, callback) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function() {
-                      callback(JSON.parse(xhr.responseText).result);
-                    };
-                    var index = params.page * params.pageSize;
-                    xhr.open('GET', 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize, true);
-                    xhr.send();
-                  };
-                }
+  ready: function() {
+    this.size = 200;
+    this.dataProvider = function(params, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        callback(JSON.parse(xhr.responseText).result);
+      };
+      var index = params.page * params.pageSize;
+      xhr.open('GET', 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize, true);
+      xhr.send();
+    };
+  }
 
-              });
-            });
-          </script>
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>

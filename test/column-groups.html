@@ -9,9 +9,9 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../vaadin-grid-column-group.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../vaadin-grid-column-group.js"></script>
 
   <style>
     vaadin-grid {
@@ -174,319 +174,324 @@
     </vaadin-grid-column>
   </template>
 
-  <script>
-    describe('column groups', function() {
-      var grid, scroller, header, body, footer, headerRows, footerRows, bodyRows;
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-column-group.js';
+import { flush as flush$0, dom } from '../../polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../../polymer/polymer-element.js';
+describe('column groups', function() {
+  var grid, scroller, header, body, footer, headerRows, footerRows, bodyRows;
 
-      function getFooterCellContent(row, col) {
-        return getCellContent(getFooterCell(row, col)).textContent.trim();
-      }
+  function getFooterCellContent(row, col) {
+    return getCellContent(getFooterCell(row, col)).textContent.trim();
+  }
 
-      function getHeaderCellContent(row, col) {
-        return getCellContent(getHeaderCell(row, col)).textContent.trim();
-      }
+  function getHeaderCellContent(row, col) {
+    return getCellContent(getHeaderCell(row, col)).textContent.trim();
+  }
 
-      function getHeaderCell(row, col) {
-        return getRowCells(headerRows[row])[col];
-      }
+  function getHeaderCell(row, col) {
+    return getRowCells(headerRows[row])[col];
+  }
 
-      function getFooterCell(row, col) {
-        return getRowCells(footerRows[row])[col];
-      }
+  function getFooterCell(row, col) {
+    return getRowCells(footerRows[row])[col];
+  }
 
-      function getBodyCellContent(row, col) {
-        return getCellContent(getRowCells(bodyRows[row])[col]).innerHTML.trim();
-      }
+  function getBodyCellContent(row, col) {
+    return getCellContent(getRowCells(bodyRows[row])[col]).innerHTML.trim();
+  }
 
-      function init(fixure) {
-        grid = fixture(fixure);
-        scroller = grid.$.scroller;
-        header = grid.$.header;
-        body = grid.$.items;
-        footer = grid.$.footer;
-        grid.dataProvider = infiniteDataProvider;
-        Polymer.dom.flush();
+  function init(fixure) {
+    grid = fixture(fixure);
+    scroller = grid.$.scroller;
+    header = grid.$.header;
+    body = grid.$.items;
+    footer = grid.$.footer;
+    grid.dataProvider = infiniteDataProvider;
+    flush$0();
 
-        headerRows = getRows(header);
-        footerRows = getRows(footer);
-        bodyRows = getRows(body);
+    headerRows = getRows(header);
+    footerRows = getRows(footer);
+    bodyRows = getRows(body);
 
-        if (Polymer.Element) {
-          Array.prototype
-            .forEach.call(grid.querySelectorAll('vaadin-grid-column, vaadin-grid-column-group'),
-            function(col) {
-              col._templateObserver.flush();
-            });
-        }
-      }
-
-      describe('No templates', function() {
-        beforeEach(function() {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
-
-          init('no-headers');
+    if (Element) {
+      Array.prototype
+        .forEach.call(grid.querySelectorAll('vaadin-grid-column, vaadin-grid-column-group'),
+        function(col) {
+          col._templateObserver.flush();
         });
+    }
+  }
 
-        it('should have empty header', function() {
-          var cells = Polymer.dom(header).querySelectorAll('.vaadin-grid-cell');
-          expect(cells).not.to.be.empty;
-          cells.forEach(function(cell) {
-            expect(cell._isEmpty).to.be.true;
-          });
-        });
+  describe('No templates', function() {
+    beforeEach(function() {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-        it('should have empty footer', function() {
-          var cells = Polymer.dom(footer).querySelectorAll('.vaadin-grid-cell');
-          expect(cells).not.to.be.empty;
+      init('no-headers');
+    });
 
-          cells.forEach(function(cell) {
-            expect(cell._isEmpty).to.be.true;
-          });
-        });
-
-        it('should have no visible header rows', function() {
-          headerRows.forEach(function(row) {
-            expect(row.hidden).to.be.true;
-          });
-        });
-
-      });
-
-      describe('1 column 1 group', function() {
-        var extraColumn;
-
-        beforeEach(function() {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
-
-          //  |          | group-0             |
-          //  | header-0 | header-1 | header-2 |
-          init('onecolumnonegroup');
-
-          extraColumn = document.importNode(document.querySelector('#extra').content, true)
-            .querySelector('vaadin-grid-column');
-          if (grid._observer.flush) {
-            grid._observer.flush();
-          }
-        });
-
-        it('the group header cell should ignore changes from child columns', function() {
-          var cellGroup0 = getHeaderCell(0, 1);
-          var cellHeader1 = getHeaderCell(1, 1);
-
-          cellGroup0._flexGrowChanged = sinon.spy();
-          cellHeader1.column.flexGrow = 3;
-
-          expect(cellGroup0._flexGrowChanged.callCount).to.eql(1);
-        });
-
-        it('should set colSpan to spanned header cells', function() {
-          var cell = getHeaderCell(0, 1);
-
-          expect(cell.colSpan).to.eql(2);
-        });
-
-        it('should not set colSpan to non-spanned header cells', function() {
-          var cell = getHeaderCell(0, 0);
-
-          expect(cell.hasAttribute('colspan')).to.be.false;
-        });
-
-        it('should have right amount of rows', function() {
-          expect(headerRows).to.have.length(2);
-        });
-
-        it('should have right amount of columns', function() {
-          expect(getRowCells(headerRows[0])).to.have.length(2);
-          expect(getRowCells(headerRows[1])).to.have.length(3);
-        });
-
-        it('should have the right content', function() {
-          [0, 1, 2].forEach(function(index) {
-            expect(getHeaderCellContent(1, index)).to.equal('header-' + index);
-          });
-          expect(getHeaderCellContent(0, 1)).to.equal('group-0');
-        });
-
-        it('should have the right body template', function() {
-          [0, 1, 2].forEach(function(index) {
-            expect(getBodyCellContent(0, index)).to.equal('body-' + index);
-          });
-        });
-
-        it('should have a frozen column', function() {
-          expect(getHeaderCell(0, 0).hasAttribute('frozen')).to.be.true;
-          expect(getHeaderCell(1, 0).hasAttribute('frozen')).to.be.true;
-        });
-
-        it('should have a frozen group', function() {
-          expect(getHeaderCell(0, 1).hasAttribute('frozen')).to.be.true;
-          expect(getHeaderCell(1, 1).hasAttribute('frozen')).to.be.true;
-          expect(getHeaderCell(1, 2).hasAttribute('frozen')).to.be.true;
-        });
-
-        it('should have no hidden header rows', function() {
-          headerRows.forEach(function(row) {
-            expect(row.hidden).to.be.false;
-          });
-        });
-
-        it('should have no visible footer rows', function() {
-          footerRows.forEach(function(row) {
-            expect(row.hidden).to.be.true;
-          });
-        });
-
-        it('should have visible footer rows after adding extra column', function() {
-          Polymer.dom(grid).appendChild(extraColumn);
-          Polymer.dom.flush();
-
-          if (Polymer.Element) {
-            extraColumn._templateObserver.flush();
-            grid._observer.flush();
-          }
-
-          expect(getRows(footer)[0].hidden).to.be.false;
-          expect(getRows(footer)[1].hidden).to.be.true;
-        });
-
-        it('should not have visible footer rows after removing extra column', function() {
-          Polymer.dom(grid).appendChild(extraColumn);
-          Polymer.dom.flush();
-          Polymer.dom(grid).removeChild(extraColumn);
-          Polymer.dom.flush();
-          expect(getRows(footer)[0].hidden).to.be.true;
-        });
-      });
-
-
-      describe('Nested groups', function() {
-        beforeEach(function(done) {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
-
-          //  | group-0             | group-1                                  |          |
-          //  |           |         | group-2            | group-3             |          |
-          //  |           |         |          |         | header-4 | header-5 | header-6 |
-          //  -----------------------------------------------------------------------------
-          //  |           |         |          |         | footer-4 | footer-5 | footer-6 |
-          //  |           |         | group-2            | group-3             |          |
-          //  | group-0             | group-1                                  |          |
-          init('nested');
-          animationFrameFlush(done);
-        });
-
-        it('should have a border below the header', function() {
-          var cells = Polymer.dom(header).querySelectorAll('.vaadin-grid-cell');
-          var cellOnLastRow = getCellContent(cells[cells.length - 1]);
-
-          expect(window.getComputedStyle(cellOnLastRow).borderBottomStyle).to.eql('solid');
-        });
-
-        it('should have a border above the footer', function() {
-          var cells = Polymer.dom(footer).querySelectorAll('.vaadin-grid-cell');
-          var cellOnFirstRow = getCellContent(cells[0]);
-
-          expect(window.getComputedStyle(cellOnFirstRow).borderTopStyle).to.eql('solid');
-        });
-
-        it('should have right content in header', function() {
-          expect(getHeaderCellContent(0, 0)).to.equal('group-0');
-          expect(getHeaderCellContent(0, 1)).to.equal('group-1');
-          expect(getHeaderCellContent(1, 2)).to.equal('group-2');
-          expect(getHeaderCellContent(1, 3)).to.equal('group-3');
-          expect(getHeaderCellContent(2, 4)).to.equal('header-4');
-          expect(getHeaderCellContent(2, 5)).to.equal('header-5');
-          expect(getHeaderCellContent(2, 6)).to.equal('header-6');
-        });
-
-        it('should have right content in footer but reversed', function() {
-          expect(getFooterCellContent(0, 4)).to.equal('footer-4');
-          expect(getFooterCellContent(0, 5)).to.equal('footer-5');
-          expect(getFooterCellContent(0, 6)).to.equal('footer-6');
-          expect(getFooterCellContent(1, 2)).to.equal('group-2');
-          expect(getFooterCellContent(1, 3)).to.equal('group-3');
-          expect(getFooterCellContent(2, 0)).to.equal('group-0');
-          expect(getFooterCellContent(2, 1)).to.equal('group-1');
-        });
-
-        it('should have cell content wrappers in all header cells', function() {
-          Polymer.dom(header).querySelectorAll('.vaadin-grid-cell').forEach(function(a) {
-            var content = getCellContent(a);
-            expect(content.localName).to.equal('vaadin-grid-cell-content');
-          });
-        });
-
-        it('should have cell content wrappers in all footer cells', function() {
-          Polymer.dom(footer).querySelectorAll('.vaadin-grid-cell').forEach(function(a) {
-            var content = getCellContent(a);
-            expect(content.localName).to.equal('vaadin-grid-cell-content');
-          });
-        });
-
-        it('frozen in a group should propagate frozen attribute up and down in headers', function() {
-          [
-            [0, 1],
-            [1, 2], [1, 3],
-            [2, 2], [2, 3], [2, 4], [2, 5]
-          ].forEach(function(a) {
-            expect(getHeaderCell(a[0], a[1]).hasAttribute('frozen')).to.be.true;
-          });
-        });
-
-        it('frozen in a group should propagate frozen attribute up and down in footers', function() {
-          [
-            [0, 2], [0, 3], [0, 4], [0, 5],
-            [1, 2], [1, 3],
-            [2, 1]
-          ].forEach(function(a) {
-            expect(getFooterCell(a[0], a[1]).hasAttribute('frozen')).to.be.true;
-          });
-        });
-
-        it('should have last row fully visible when scrolled to end', function(done) {
-          this.timeout(30000);
-
-          scrollToEnd(grid);
-
-          animationFrameFlush(function() {
-            bodyRows = getRows(body);
-            var lastRowBottom = bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom;
-            var footerTop = footer.getBoundingClientRect().top;
-            expect(lastRowBottom).to.be.closeTo(footerTop, 1);
-            done();
-          });
-        });
-      });
-
-      describe('hidden group', function() {
-
-        it('should hide children', function(done) {
-          init('hidden-group');
-
-          flush(function() {
-            expect(grid.querySelector('vaadin-grid-column').hidden).to.be.true;
-            expect(grid.querySelector('vaadin-grid-column-group').hidden).to.be.true;
-            done();
-          });
-        });
-
-        it('should hide self', function(done) {
-          init('hidden-column');
-
-          flush(function() {
-            expect(grid.querySelector('vaadin-grid-column-group').hidden).not.to.be.true;
-            var columns = grid.querySelectorAll('vaadin-grid-column');
-            expect(columns[0].hidden).to.be.true;
-            expect(columns[1].hidden).not.to.be.true;
-            done();
-          });
-        });
-
+    it('should have empty header', function() {
+      var cells = dom(header).querySelectorAll('.vaadin-grid-cell');
+      expect(cells).not.to.be.empty;
+      cells.forEach(function(cell) {
+        expect(cell._isEmpty).to.be.true;
       });
     });
-  </script>
+
+    it('should have empty footer', function() {
+      var cells = dom(footer).querySelectorAll('.vaadin-grid-cell');
+      expect(cells).not.to.be.empty;
+
+      cells.forEach(function(cell) {
+        expect(cell._isEmpty).to.be.true;
+      });
+    });
+
+    it('should have no visible header rows', function() {
+      headerRows.forEach(function(row) {
+        expect(row.hidden).to.be.true;
+      });
+    });
+
+  });
+
+  describe('1 column 1 group', function() {
+    var extraColumn;
+
+    beforeEach(function() {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
+
+      //  |          | group-0             |
+      //  | header-0 | header-1 | header-2 |
+      init('onecolumnonegroup');
+
+      extraColumn = document.importNode(document.querySelector('#extra').content, true)
+        .querySelector('vaadin-grid-column');
+      if (grid._observer.flush) {
+        grid._observer.flush();
+      }
+    });
+
+    it('the group header cell should ignore changes from child columns', function() {
+      var cellGroup0 = getHeaderCell(0, 1);
+      var cellHeader1 = getHeaderCell(1, 1);
+
+      cellGroup0._flexGrowChanged = sinon.spy();
+      cellHeader1.column.flexGrow = 3;
+
+      expect(cellGroup0._flexGrowChanged.callCount).to.eql(1);
+    });
+
+    it('should set colSpan to spanned header cells', function() {
+      var cell = getHeaderCell(0, 1);
+
+      expect(cell.colSpan).to.eql(2);
+    });
+
+    it('should not set colSpan to non-spanned header cells', function() {
+      var cell = getHeaderCell(0, 0);
+
+      expect(cell.hasAttribute('colspan')).to.be.false;
+    });
+
+    it('should have right amount of rows', function() {
+      expect(headerRows).to.have.length(2);
+    });
+
+    it('should have right amount of columns', function() {
+      expect(getRowCells(headerRows[0])).to.have.length(2);
+      expect(getRowCells(headerRows[1])).to.have.length(3);
+    });
+
+    it('should have the right content', function() {
+      [0, 1, 2].forEach(function(index) {
+        expect(getHeaderCellContent(1, index)).to.equal('header-' + index);
+      });
+      expect(getHeaderCellContent(0, 1)).to.equal('group-0');
+    });
+
+    it('should have the right body template', function() {
+      [0, 1, 2].forEach(function(index) {
+        expect(getBodyCellContent(0, index)).to.equal('body-' + index);
+      });
+    });
+
+    it('should have a frozen column', function() {
+      expect(getHeaderCell(0, 0).hasAttribute('frozen')).to.be.true;
+      expect(getHeaderCell(1, 0).hasAttribute('frozen')).to.be.true;
+    });
+
+    it('should have a frozen group', function() {
+      expect(getHeaderCell(0, 1).hasAttribute('frozen')).to.be.true;
+      expect(getHeaderCell(1, 1).hasAttribute('frozen')).to.be.true;
+      expect(getHeaderCell(1, 2).hasAttribute('frozen')).to.be.true;
+    });
+
+    it('should have no hidden header rows', function() {
+      headerRows.forEach(function(row) {
+        expect(row.hidden).to.be.false;
+      });
+    });
+
+    it('should have no visible footer rows', function() {
+      footerRows.forEach(function(row) {
+        expect(row.hidden).to.be.true;
+      });
+    });
+
+    it('should have visible footer rows after adding extra column', function() {
+      dom(grid).appendChild(extraColumn);
+      flush$0();
+
+      if (Element) {
+        extraColumn._templateObserver.flush();
+        grid._observer.flush();
+      }
+
+      expect(getRows(footer)[0].hidden).to.be.false;
+      expect(getRows(footer)[1].hidden).to.be.true;
+    });
+
+    it('should not have visible footer rows after removing extra column', function() {
+      dom(grid).appendChild(extraColumn);
+      flush$0();
+      dom(grid).removeChild(extraColumn);
+      flush$0();
+      expect(getRows(footer)[0].hidden).to.be.true;
+    });
+  });
+
+
+  describe('Nested groups', function() {
+    beforeEach(function(done) {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
+
+      //  | group-0             | group-1                                  |          |
+      //  |           |         | group-2            | group-3             |          |
+      //  |           |         |          |         | header-4 | header-5 | header-6 |
+      //  -----------------------------------------------------------------------------
+      //  |           |         |          |         | footer-4 | footer-5 | footer-6 |
+      //  |           |         | group-2            | group-3             |          |
+      //  | group-0             | group-1                                  |          |
+      init('nested');
+      animationFrameFlush(done);
+    });
+
+    it('should have a border below the header', function() {
+      var cells = dom(header).querySelectorAll('.vaadin-grid-cell');
+      var cellOnLastRow = getCellContent(cells[cells.length - 1]);
+
+      expect(window.getComputedStyle(cellOnLastRow).borderBottomStyle).to.eql('solid');
+    });
+
+    it('should have a border above the footer', function() {
+      var cells = dom(footer).querySelectorAll('.vaadin-grid-cell');
+      var cellOnFirstRow = getCellContent(cells[0]);
+
+      expect(window.getComputedStyle(cellOnFirstRow).borderTopStyle).to.eql('solid');
+    });
+
+    it('should have right content in header', function() {
+      expect(getHeaderCellContent(0, 0)).to.equal('group-0');
+      expect(getHeaderCellContent(0, 1)).to.equal('group-1');
+      expect(getHeaderCellContent(1, 2)).to.equal('group-2');
+      expect(getHeaderCellContent(1, 3)).to.equal('group-3');
+      expect(getHeaderCellContent(2, 4)).to.equal('header-4');
+      expect(getHeaderCellContent(2, 5)).to.equal('header-5');
+      expect(getHeaderCellContent(2, 6)).to.equal('header-6');
+    });
+
+    it('should have right content in footer but reversed', function() {
+      expect(getFooterCellContent(0, 4)).to.equal('footer-4');
+      expect(getFooterCellContent(0, 5)).to.equal('footer-5');
+      expect(getFooterCellContent(0, 6)).to.equal('footer-6');
+      expect(getFooterCellContent(1, 2)).to.equal('group-2');
+      expect(getFooterCellContent(1, 3)).to.equal('group-3');
+      expect(getFooterCellContent(2, 0)).to.equal('group-0');
+      expect(getFooterCellContent(2, 1)).to.equal('group-1');
+    });
+
+    it('should have cell content wrappers in all header cells', function() {
+      dom(header).querySelectorAll('.vaadin-grid-cell').forEach(function(a) {
+        var content = getCellContent(a);
+        expect(content.localName).to.equal('vaadin-grid-cell-content');
+      });
+    });
+
+    it('should have cell content wrappers in all footer cells', function() {
+      dom(footer).querySelectorAll('.vaadin-grid-cell').forEach(function(a) {
+        var content = getCellContent(a);
+        expect(content.localName).to.equal('vaadin-grid-cell-content');
+      });
+    });
+
+    it('frozen in a group should propagate frozen attribute up and down in headers', function() {
+      [
+        [0, 1],
+        [1, 2], [1, 3],
+        [2, 2], [2, 3], [2, 4], [2, 5]
+      ].forEach(function(a) {
+        expect(getHeaderCell(a[0], a[1]).hasAttribute('frozen')).to.be.true;
+      });
+    });
+
+    it('frozen in a group should propagate frozen attribute up and down in footers', function() {
+      [
+        [0, 2], [0, 3], [0, 4], [0, 5],
+        [1, 2], [1, 3],
+        [2, 1]
+      ].forEach(function(a) {
+        expect(getFooterCell(a[0], a[1]).hasAttribute('frozen')).to.be.true;
+      });
+    });
+
+    it('should have last row fully visible when scrolled to end', function(done) {
+      this.timeout(30000);
+
+      scrollToEnd(grid);
+
+      animationFrameFlush(function() {
+        bodyRows = getRows(body);
+        var lastRowBottom = bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom;
+        var footerTop = footer.getBoundingClientRect().top;
+        expect(lastRowBottom).to.be.closeTo(footerTop, 1);
+        done();
+      });
+    });
+  });
+
+  describe('hidden group', function() {
+
+    it('should hide children', function(done) {
+      init('hidden-group');
+
+      flush(function() {
+        expect(grid.querySelector('vaadin-grid-column').hidden).to.be.true;
+        expect(grid.querySelector('vaadin-grid-column-group').hidden).to.be.true;
+        done();
+      });
+    });
+
+    it('should hide self', function(done) {
+      init('hidden-column');
+
+      flush(function() {
+        expect(grid.querySelector('vaadin-grid-column-group').hidden).not.to.be.true;
+        var columns = grid.querySelectorAll('vaadin-grid-column');
+        expect(columns[0].hidden).to.be.true;
+        expect(columns[1].hidden).not.to.be.true;
+        done();
+      });
+    });
+
+  });
+});
+</script>
 
 </body>
 

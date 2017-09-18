@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
+  <script type="module" src="./helpers.js"></script>
   <link rel="import" href="x-list.html">
 
 </head>
@@ -30,93 +30,93 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
-  <script>
+  <script type="module">
+import './helpers.js';
 
-    suite('Different heights', function() {
-      var list, container;
+suite('Different heights', function() {
+  var list, container;
 
-      setup(function() {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
-        
-        container = fixture('trivialList');
-        list = container.list;
+  setup(function() {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
+    
+    container = fixture('trivialList');
+    list = container.list;
+  });
+
+  test('render without gaps 1', function(done) {
+    container.heights = [
+      {index: 0, height: 791},
+      {index: 1, height: 671}
+    ];
+
+    flush(function() {
+      container.heights = [791, 671, 251, 191, 151, 191, 51, 51, 51].map(function(h) {
+        return {height: h};
       });
 
-      test('render without gaps 1', function(done) {
-        container.heights = [
-          {index: 0, height: 791},
-          {index: 1, height: 671}
-        ];
-
-        flush(function() {
-          container.heights = [791, 671, 251, 191, 151, 191, 51, 51, 51].map(function(h) {
-            return {height: h};
+      simulateScroll({
+        list: list,
+        contribution: 20,
+        target: 100000,
+        onScrollEnd: done,
+        onScroll: function() {
+          list.debounce('scroll', function() {
+            assert.isTrue(isFullOfItems(list));
           });
-
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              list.debounce('scroll', function() {
-                assert.isTrue(isFullOfItems(list));
-              });
-            }
-          });
-        });
-      });
-
-      test('render without gaps 2', function(done) {
-        var height = 2, items = [];
-
-        while (items.length < 15) {
-          items.push({height: height});
-          height *= 1.5;
         }
-        list.items = items;
-
-        flush(function() {
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              list.debounce('scroll', function() {
-                assert.equal(isFullOfItems(list), true);
-              });
-            }
-          });
-        });
       });
+    });
+  });
 
-      test('render without gaps 3', function(done) {
-        var heights = [20, 100, 140, 117, 800, 50, 15, 80, 90, 255, 20, 15, 19, 250, 314];
+  test('render without gaps 2', function(done) {
+    var height = 2, items = [];
 
-        list.items = heights.map(function(height) {
-          return {height: height};
-        });
+    while (items.length < 15) {
+      items.push({height: height});
+      height *= 1.5;
+    }
+    list.items = items;
 
-        flush(function() {
-          simulateScroll({
-            list: list,
-            contribution: 20,
-            target: 100000,
-            onScrollEnd: done,
-            onScroll: function() {
-              list.debounce('scroll', function() {
-                assert.isTrue(isFullOfItems(list));
-              });
-            }
+    flush(function() {
+      simulateScroll({
+        list: list,
+        contribution: 20,
+        target: 100000,
+        onScrollEnd: done,
+        onScroll: function() {
+          list.debounce('scroll', function() {
+            assert.equal(isFullOfItems(list), true);
           });
-        });
+        }
       });
+    });
+  });
 
+  test('render without gaps 3', function(done) {
+    var heights = [20, 100, 140, 117, 800, 50, 15, 80, 90, 255, 20, 15, 19, 250, 314];
+
+    list.items = heights.map(function(height) {
+      return {height: height};
     });
 
-  </script>
+    flush(function() {
+      simulateScroll({
+        list: list,
+        contribution: 20,
+        target: 100000,
+        onScrollEnd: done,
+        onScroll: function() {
+          list.debounce('scroll', function() {
+            assert.isTrue(isFullOfItems(list));
+          });
+        }
+      });
+    });
+  });
+
+});
+</script>
 
 </body>
 </html>

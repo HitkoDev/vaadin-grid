@@ -10,12 +10,12 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../vaadin-grid-sorter.html">
-  <link rel="import" href="../vaadin-grid-filter.html">
+  <script type="module" src="../vaadin-grid-sorter.js"></script>
+  <script type="module" src="../vaadin-grid-filter.js"></script>
 
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+  <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
 
-  <link rel="import" href="common.html">
+  <script type="module" src="./common.js"></script>
 </head>
 
 <body unresolved>
@@ -120,37 +120,40 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-remote-sorting-example',
+          <script type="module">
+import '../vaadin-grid-sorter.js';
+import '../vaadin-grid-filter.js';
+import '../../paper-checkbox/paper-checkbox.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-remote-sorting-example',
 
-                ready: function() {
-                  var grid = this.$.grid;
+  ready: function() {
+    var grid = this.$.grid;
 
-                  grid.size = 200;
+    grid.size = 200;
 
-                  grid.dataProvider = function(params, callback) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function() {
-                      callback(JSON.parse(xhr.responseText).result);
-                    };
+    grid.dataProvider = function(params, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        callback(JSON.parse(xhr.responseText).result);
+      };
 
-                    var index = params.page * params.pageSize;
-                    var url = 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize;
+      var index = params.page * params.pageSize;
+      var url = 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize;
 
-                    // `params.sortOrders` format: [{path: 'lastName', direction: 'asc'}, ...];
-                    params.sortOrders.forEach(function(sort) {
-                      url += '&orders[]=' + sort.path + ' ' + sort.direction;
-                    });
+      // `params.sortOrders` format: [{path: 'lastName', direction: 'asc'}, ...];
+      params.sortOrders.forEach(function(sort) {
+        url += '&orders[]=' + sort.path + ' ' + sort.direction;
+      });
 
-                    xhr.open('GET', url, true);
-                    xhr.send();
-                  };
-                }
-              });
-            });
-          </script>
+      xhr.open('GET', url, true);
+      xhr.send();
+    };
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -248,43 +251,46 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-remote-filtering-example',
+          <script type="module">
+import '../vaadin-grid-sorter.js';
+import '../vaadin-grid-filter.js';
+import '../../paper-checkbox/paper-checkbox.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-remote-filtering-example',
 
-                ready: function() {
-                  var grid = this.$.grid;
+  ready: function() {
+    var grid = this.$.grid;
 
-                  grid.size = 200;
+    grid.size = 200;
 
-                  grid.dataProvider = function(params, callback) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.onload = function() {
-                      var response = JSON.parse(xhr.responseText);
+    grid.dataProvider = function(params, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        var response = JSON.parse(xhr.responseText);
 
-                      // Number of items changes after filtering. We need
-                      // to update the grid size based on server response.
-                      grid.size = response.size;
+        // Number of items changes after filtering. We need
+        // to update the grid size based on server response.
+        grid.size = response.size;
 
-                      callback(response.result);
-                    };
+        callback(response.result);
+      };
 
-                    var index = params.page * params.pageSize;
-                    var url = 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize;
+      var index = params.page * params.pageSize;
+      var url = 'https://demo.vaadin.com/demo-data/1.0/people?index=' + index + '&count=' + params.pageSize;
 
-                    // `params.filters` format: [{path: 'lastName', direction: 'asc'}, ...];
-                    params.filters.forEach(function(filter) {
-                      url += '&filters[' + filter.path + ']=' + encodeURIComponent(filter.value);
-                    });
+      // `params.filters` format: [{path: 'lastName', direction: 'asc'}, ...];
+      params.filters.forEach(function(filter) {
+        url += '&filters[' + filter.path + ']=' + encodeURIComponent(filter.value);
+      });
 
-                    xhr.open('GET', url, true);
-                    xhr.send();
-                  };
-                }
-              });
-            });
-          </script>
+      xhr.open('GET', url, true);
+      xhr.send();
+    };
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>

@@ -9,8 +9,8 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
 
   <style>
     vaadin-grid {
@@ -35,52 +35,54 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('hidden grid', function() {
-      var container, grid;
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+describe('hidden grid', function() {
+  var container, grid;
 
-      beforeEach(function(done) {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+  beforeEach(function(done) {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-        container = fixture('trivialGrid');
-        grid = container.firstElementChild;
-        grid.dataProvider = infiniteDataProvider;
-        flush(done);
-      });
+    container = fixture('trivialGrid');
+    grid = container.firstElementChild;
+    grid.dataProvider = infiniteDataProvider;
+    flush(done);
+  });
 
-      it('should be hidden', function(done) {
-        flush(function() {
-          expect(grid.offsetWidth).to.equal(0);
-          expect(grid.offsetHeight).to.equal(0);
-          done();
-        });
-      });
-
-      describe('revealed', function(done) {
-
-        beforeEach(function(done) {
-          listenOnce(grid.$.scroller, 'animationend', function() {
-            animationFrameFlush(done);
-          });
-          container.removeAttribute('hidden');
-        });
-
-        it('should have content on appear', function() {
-          expect(grid.isAttached).to.be.true;
-          expect(getBodyCellContent(grid, 0, 0).textContent).to.equal('0');
-        });
-
-        it('should measure header on appear', function() {
-          var contentRect = getBodyCellContent(grid, 0, 0).getBoundingClientRect();
-          var headerRect = grid.$.header.getBoundingClientRect();
-          expect(contentRect.top).to.be.closeTo(headerRect.bottom, 1);
-        });
-
-      });
-
+  it('should be hidden', function(done) {
+    flush(function() {
+      expect(grid.offsetWidth).to.equal(0);
+      expect(grid.offsetHeight).to.equal(0);
+      done();
     });
-  </script>
+  });
+
+  describe('revealed', function(done) {
+
+    beforeEach(function(done) {
+      listenOnce(grid.$.scroller, 'animationend', function() {
+        animationFrameFlush(done);
+      });
+      container.removeAttribute('hidden');
+    });
+
+    it('should have content on appear', function() {
+      expect(grid.isAttached).to.be.true;
+      expect(getBodyCellContent(grid, 0, 0).textContent).to.equal('0');
+    });
+
+    it('should measure header on appear', function() {
+      var contentRect = getBodyCellContent(grid, 0, 0).getBoundingClientRect();
+      var headerRect = grid.$.header.getBoundingClientRect();
+      expect(contentRect.top).to.be.closeTo(headerRect.bottom, 1);
+    });
+
+  });
+
+});
+</script>
 
 </body>
 

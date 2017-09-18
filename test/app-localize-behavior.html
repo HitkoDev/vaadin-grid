@@ -9,9 +9,9 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../../app-localize-behavior/app-localize-behavior.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../../app-localize-behavior/app-localize-behavior.js"></script>
 </head>
 <body>
 
@@ -30,25 +30,27 @@
         </vaadin-grid-column>
       </vaadin-grid>
     </template>
-    <script>
-      document.addEventListener('WebComponentsReady', function() {
-        Polymer({
-          is: 'x-grid',
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import { AppLocalizeBehavior } from '../../app-localize-behavior/app-localize-behavior.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-grid',
 
-          behaviors: [Polymer.AppLocalizeBehavior],
+  behaviors: [AppLocalizeBehavior],
 
-          properties: {
-            language: {
-              value: 'en'
-            }
-          },
+  properties: {
+    language: {
+      value: 'en'
+    }
+  },
 
-          attached: function() {
-            this.loadResources('locales.json');
-          }
-        });
-      });
-    </script>
+  attached: function() {
+    this.loadResources('locales.json');
+  }
+});
+</script>
   </dom-module>
 
   <test-fixture id="grid">
@@ -57,30 +59,32 @@
     </template>
   </test-fixture>
 
-  <script>
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../../app-localize-behavior/app-localize-behavior.js';
 
-    describe('app-localize-behavior', function() {
-      var container, column, grid;
+describe('app-localize-behavior', function() {
+  var container, column, grid;
 
-      beforeEach(function(done) {
-        container = fixture('grid');
-        grid = container.$.grid;
-        container.addEventListener('app-localize-resources-loaded', function() {
-          done();
-        });
-      });
-
-      // Known error (missing Promise polyfill in webcomponentsjs lite v0)
-      var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
-      if (!IE) {
-        it('should localize', function() {
-          expect(getHeaderCellContent(grid, 0, 0).innerText).to.equal('header');
-        });
-      }
-
+  beforeEach(function(done) {
+    container = fixture('grid');
+    grid = container.$.grid;
+    container.addEventListener('app-localize-resources-loaded', function() {
+      done();
     });
+  });
 
-  </script>
+  // Known error (missing Promise polyfill in webcomponentsjs lite v0)
+  var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
+  if (!IE) {
+    it('should localize', function() {
+      expect(getHeaderCellContent(grid, 0, 0).innerText).to.equal('header');
+    });
+  }
+
+});
+</script>
 
 </body>
 </html>

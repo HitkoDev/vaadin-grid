@@ -10,15 +10,15 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="common.html">
-  <link rel="import" href="../vaadin-grid-selection-column.html">
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../../iron-icon/iron-icon.html">
-  <link rel="import" href="../../iron-icons/iron-icons.html">
-  <link rel="import" href="../../paper-styles/color.html">
-  <link rel="import" href="../vaadin-grid-sorter.html">
-  <link rel="import" href="../vaadin-grid-filter.html">
-  <link rel="import" href="../vaadin-grid-column-group.html">
+  <script type="module" src="./common.js"></script>
+  <script type="module" src="../vaadin-grid-selection-column.js"></script>
+  <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
+  <script type="module" src="../../iron-icon/iron-icon.js"></script>
+  <script type="module" src="../../iron-icons/iron-icons.js"></script>
+  <script type="module" src="../../paper-styles/color.js"></script>
+  <script type="module" src="../vaadin-grid-sorter.js"></script>
+  <script type="module" src="../vaadin-grid-filter.js"></script>
+  <script type="module" src="../vaadin-grid-column-group.js"></script>
 
 </head>
 
@@ -160,23 +160,33 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            var scope = document.querySelector('#transparent-template');
-            if (Polymer.Element) {
-              scope = scope.parentElement;
-            }
+          <script type="module">
+import './common.js';
+import '../vaadin-grid-selection-column.js';
+import '../../paper-checkbox/paper-checkbox.js';
+import '../../iron-icon/iron-icon.js';
+import '../../iron-icons/iron-icons.js';
+import '../../paper-styles/color.js';
+import '../vaadin-grid-sorter.js';
+import '../vaadin-grid-filter.js';
+import '../vaadin-grid-column-group.js';
+import { Element } from '../../polymer/polymer-element.js';
+var scope = document.querySelector('#transparent-template');
+if (Element) {
+  scope = scope.parentElement;
+}
 
-            scope._activeItemChanged = function(e) {
-              var grid = e.target;
-              this._clickedItem = grid.activeItem ? grid.activeItem : this._clickedItem;
+scope._activeItemChanged = function(e) {
+  var grid = e.target;
+  this._clickedItem = grid.activeItem ? grid.activeItem : this._clickedItem;
 
-              if (grid.expandedItems.indexOf(this._clickedItem) > -1) {
-                grid.collapseItem(this._clickedItem);
-              } else {
-                grid.expandItem(this._clickedItem);
-              }
-            };
-          </script>
+  if (grid.expandedItems.indexOf(this._clickedItem) > -1) {
+    grid.collapseItem(this._clickedItem);
+  } else {
+    grid.expandItem(this._clickedItem);
+  }
+};
+</script>
         </dom-bind>
       </template>
     </demo-snippet>

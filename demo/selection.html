@@ -10,11 +10,11 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../vaadin-grid-selection-column.html">
+  <script type="module" src="../../paper-checkbox/paper-checkbox.js"></script>
+  <script type="module" src="../vaadin-grid-selection-column.js"></script>
 
 
-  <link rel="import" href="common.html">
+  <script type="module" src="./common.js"></script>
 </head>
 
 <body unresolved>
@@ -61,23 +61,25 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-selection',
+          <script type="module">
+import '../../paper-checkbox/paper-checkbox.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-selection',
 
-                properties: {
-                  activeItem: {
-                    observer: '_activeItemChanged'
-                  }
-                },
+  properties: {
+    activeItem: {
+      observer: '_activeItemChanged'
+    }
+  },
 
-                _activeItemChanged: function(item) {
-                  this.$.grid.selectedItems = item ? [item] : [];
-                }
-              });
-            });
-          </script>
+  _activeItemChanged: function(item) {
+    this.$.grid.selectedItems = item ? [item] : [];
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -221,54 +223,56 @@
 
             </vaadin-grid>
           </template>
-          <script>
-          addEventListener('WebComponentsReady', function() {
-            Polymer({
-              is: 'dataprovider-select-all',
+          <script type="module">
+import '../../paper-checkbox/paper-checkbox.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'dataprovider-select-all',
 
-              properties: {
-                inverted: {
-                  type: Boolean,
-                  value: false
-                },
-                indeterminate: {
-                  type: Boolean,
-                  value: false
-                }
-              },
+  properties: {
+    inverted: {
+      type: Boolean,
+      value: false
+    },
+    indeterminate: {
+      type: Boolean,
+      value: false
+    }
+  },
 
-              observers: ['_resetSelection(inverted)'],
+  observers: ['_resetSelection(inverted)'],
 
-              _resetSelection: function(inverted) {
-                this.$.grid.selectedItems = [];
-                this.updateStyles();
-                this.indeterminate = false;
-              },
+  _resetSelection: function(inverted) {
+    this.$.grid.selectedItems = [];
+    this.updateStyles();
+    this.indeterminate = false;
+  },
 
-              _invert: function(e) {
-                this.inverted = !this.inverted;
-              },
+  _invert: function(e) {
+    this.inverted = !this.inverted;
+  },
 
-                // iOS needs indeterminated + checked at the same time
-              _isChecked: function(inverted, indeterminate) {
-                return indeterminate || inverted;
-              },
+    // iOS needs indeterminated + checked at the same time
+  _isChecked: function(inverted, indeterminate) {
+    return indeterminate || inverted;
+  },
 
-              _selectItem: function(e) {
-                if (e.target.checked === this.inverted) {
-                  this.$.grid.deselectItem(e.model.item);
-                } else {
-                  this.$.grid.selectItem(e.model.item);
-                }
-                this.indeterminate = this.$.grid.selectedItems.length > 0;
-              },
+  _selectItem: function(e) {
+    if (e.target.checked === this.inverted) {
+      this.$.grid.deselectItem(e.model.item);
+    } else {
+      this.$.grid.selectItem(e.model.item);
+    }
+    this.indeterminate = this.$.grid.selectedItems.length > 0;
+  },
 
-              _isSelected: function(inverted, selected) {
-                return inverted != selected;
-              }
-            });
-          });
-          </script>
+  _isSelected: function(inverted, selected) {
+    return inverted != selected;
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>
@@ -336,32 +340,34 @@
 
             </vaadin-grid>
           </template>
-          <script>
-            addEventListener('WebComponentsReady', function() {
-              Polymer({
-                is: 'x-space-action',
+          <script type="module">
+import '../../paper-checkbox/paper-checkbox.js';
+import '../vaadin-grid-selection-column.js';
+import './common.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-space-action',
 
-                properties: {
-                  activeItem: {
-                    observer: '_activeItemChanged'
-                  }
-                },
+  properties: {
+    activeItem: {
+      observer: '_activeItemChanged'
+    }
+  },
 
-                _alert: function(e) {
-                  alert(e.target.textContent + ' clicked');
-                },
+  _alert: function(e) {
+    alert(e.target.textContent + ' clicked');
+  },
 
-                _alertAndPreventDefault: function(e) {
-                  e.preventDefault();
-                  this._alert(e);
-                },
+  _alertAndPreventDefault: function(e) {
+    e.preventDefault();
+    this._alert(e);
+  },
 
-                _activeItemChanged: function(item) {
-                  this.$.grid.selectedItems = item ? [item] : [];
-                }
-              });
-            });
-          </script>
+  _activeItemChanged: function(item) {
+    this.$.grid.selectedItems = item ? [item] : [];
+  }
+});
+</script>
         </dom-module>
       </template>
     </demo-snippet>

@@ -8,8 +8,8 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="../../polymer/polymer.html">
-  <link rel="import" href="helpers.html">
+  <script type="module" src="../../polymer/polymer.js"></script>
+  <script type="module" src="./helpers.js"></script>
 </head>
 
 <body>
@@ -24,32 +24,34 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('basic features', function() {
-      var scroller, grid;
+  <script type="module">
+import { Base } from '../../polymer/polymer.js';
+import './helpers.js';
+describe('basic features', function() {
+  var scroller, grid;
 
-      beforeEach(function() {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+  beforeEach(function() {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-        grid = fixture('default');
-        grid.dataProvider = infiniteDataProvider;
+    grid = fixture('default');
+    grid.dataProvider = infiniteDataProvider;
+  });
+
+  it('check physical item heights', function(done) {
+    var _error = console.error;
+    var spy = console.error = sinon.spy();
+    Base.importHref('../vaadin-grid.html', function() {
+      animationFrameFlush(function() {
+        console.error = _error;
+        expect(spy.called).to.be.false;
+        done();
       });
-
-      it('check physical item heights', function(done) {
-        var _error = console.error;
-        var spy = console.error = sinon.spy();
-        Polymer.Base.importHref('../vaadin-grid.html', function() {
-          animationFrameFlush(function() {
-            console.error = _error;
-            expect(spy.called).to.be.false;
-            done();
-          });
-        });
-      });
-
     });
-  </script>
+  });
+
+});
+</script>
 
 </body>
 

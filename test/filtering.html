@@ -8,10 +8,10 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../vaadin-grid-filter.html">
-  <link rel="import" href="../vaadin-grid-sorter.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../vaadin-grid-filter.js"></script>
+  <script type="module" src="../vaadin-grid-sorter.js"></script>
 </head>
 
 <body>
@@ -27,13 +27,16 @@
         <input value="{{_filterValue::input}}">
       </vaadin-grid-filter>
     </template>
-    <script>
-      HTMLImports.whenReady(function() {
-        Polymer({
-          is: 'filter-wrapper'
-        });
-      });
-    </script>
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-filter.js';
+import '../vaadin-grid-sorter.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'filter-wrapper'
+});
+</script>
   </dom-module>
 
   <test-fixture id="filter">
@@ -64,184 +67,191 @@
     </template>
   </test-fixture>
 
-  <script>
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-filter.js';
+import '../vaadin-grid-sorter.js';
+import { Base } from '../../polymer/polymer.js';
+import { dom, flush as flush$0 } from '../../polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../../polymer/polymer-element.js';
 
-    describe('filter', function() {
-      var filter;
-      var filterWrapper;
+describe('filter', function() {
+  var filter;
+  var filterWrapper;
 
-      beforeEach(function() {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+  beforeEach(function() {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-        filterWrapper = fixture('filter');
-        filter = filterWrapper.$.filter;
-      });
+    filterWrapper = fixture('filter');
+    filter = filterWrapper.$.filter;
+  });
 
-      it('should fire `filter-changed` on value change', function(done) {
-        filter.addEventListener('filter-changed', function(e) {
-          done();
-        });
-
-        filter.value = 'foo';
-      });
-
-      it('should fire `filter-changed` on path change', function(done) {
-        filter.value = 'foo';
-        filter.flushDebouncer('filter-changed');
-
-        filter.addEventListener('filter-changed', function(e) {
-          done();
-        });
-        filter.path = 'bar';
-      });
-
-      it('should update value', function(done) {
-        filter.addEventListener('filter-changed', function(e) {
-          expect(filter.value).to.eql('foo');
-          done();
-        });
-
-        var input = filter.children[0];
-
-        input.value = 'foo';
-        Polymer.Base.fire('input', {}, {node: input});
-      });
+  it('should fire `filter-changed` on value change', function(done) {
+    filter.addEventListener('filter-changed', function(e) {
+      done();
     });
 
-    function flushFilters(grid) {
-      Polymer.dom(grid).querySelectorAll('vaadin-grid-filter').forEach(function(filter) {
-        filter.flushDebouncer('filter-changed');
-      });
+    filter.value = 'foo';
+  });
+
+  it('should fire `filter-changed` on path change', function(done) {
+    filter.value = 'foo';
+    filter.flushDebouncer('filter-changed');
+
+    filter.addEventListener('filter-changed', function(e) {
+      done();
+    });
+    filter.path = 'bar';
+  });
+
+  it('should update value', function(done) {
+    filter.addEventListener('filter-changed', function(e) {
+      expect(filter.value).to.eql('foo');
+      done();
+    });
+
+    var input = filter.children[0];
+
+    input.value = 'foo';
+    Base.fire('input', {}, {node: input});
+  });
+});
+
+function flushFilters(grid) {
+  dom(grid).querySelectorAll('vaadin-grid-filter').forEach(function(filter) {
+    filter.flushDebouncer('filter-changed');
+  });
+}
+
+describe('filtering', function() {
+  var grid;
+
+  beforeEach(function() {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
+
+    grid = fixture('grid');
+    flush$0();
+
+    if (Element) {
+      Array.prototype
+        .forEach.call(grid.querySelectorAll('vaadin-grid-column, vaadin-grid-column-group'),
+        function(col) {
+          col._templateObserver.flush();
+        });
     }
 
-    describe('filtering', function() {
-      var grid;
+    flushFilters(grid);
+    if (grid._observer.flush) {
+      grid._observer.flush();
+    }
+  });
 
-      beforeEach(function() {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+  it('should have filters', function() {
+    expect(grid._filters.length).to.eql(2);
+    expect(grid._filters[0].path).to.eql('first');
+    expect(grid._filters[1].path).to.eql('last');
+  });
 
-        grid = fixture('grid');
-        Polymer.dom.flush();
-
-        if (Polymer.Element) {
-          Array.prototype
-            .forEach.call(grid.querySelectorAll('vaadin-grid-column, vaadin-grid-column-group'),
-            function(col) {
-              col._templateObserver.flush();
-            });
-        }
-
-        flushFilters(grid);
-        if (grid._observer.flush) {
-          grid._observer.flush();
-        }
-      });
-
-      it('should have filters', function() {
-        expect(grid._filters.length).to.eql(2);
-        expect(grid._filters[0].path).to.eql('first');
-        expect(grid._filters[1].path).to.eql('last');
-      });
-
-      it('should have default inputs', function() {
-        grid._filters.forEach(function(filter) {
-          expect(filter.$.filter.clientHeight).to.be.greaterThan(0);
-        });
-      });
-
-      it('should pass filters to dataProvider', function(done) {
-        grid.size = 10;
-
-        grid.dataProvider = function(params) {
-          expect(params.filters[0]).to.eql({path: 'first', value: 'bar'});
-          expect(params.filters[1]).to.eql({path: 'last', value: 'qux'});
-
-          if (!done._called) {
-            done._called = true;
-            done();
-          }
-        };
-      });
-
-      it('should clear cache and fetch data when filters change', function(done) {
-        grid.items = ['foo', 'bar'];
-        sinon.stub(grid, 'clearCache', done);
-        grid._filters[0].value = '';
-      });
-
+  it('should have default inputs', function() {
+    grid._filters.forEach(function(filter) {
+      expect(filter.$.filter.clientHeight).to.be.greaterThan(0);
     });
+  });
 
-    describe('array data provider', function() {
+  it('should pass filters to dataProvider', function(done) {
+    grid.size = 10;
 
-      var grid;
+    grid.dataProvider = function(params) {
+      expect(params.filters[0]).to.eql({path: 'first', value: 'bar'});
+      expect(params.filters[1]).to.eql({path: 'last', value: 'qux'});
 
-      beforeEach(function() {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+      if (!done._called) {
+        done._called = true;
+        done();
+      }
+    };
+  });
 
-        grid = fixture('grid');
-        Polymer.dom.flush();
+  it('should clear cache and fetch data when filters change', function(done) {
+    grid.items = ['foo', 'bar'];
+    sinon.stub(grid, 'clearCache', done);
+    grid._filters[0].value = '';
+  });
 
-        if (Polymer.Element) {
-          flushColumns(grid);
-        }
+});
 
-        flushFilters(grid);
-        grid._filters[0].value = '';
-        grid._filters[1].value = '';
-        flushFilters(grid);
-        grid.items = [{
-          first: 'foo',
-          last: 'bar'
-        }, {
-          first: 'foo',
-          last: 'baz'
-        }, {
-          first: 'bar',
-          last: 'bar'
-        }];
+describe('array data provider', function() {
 
-        if (grid._observer.flush) {
-          grid._observer.flush();
-        }
-      });
+  var grid;
 
-      it('should filter automatically', function() {
-        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
-        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('bar');
-        grid._filters[0].value = 'r';
-        flushFilters(grid);
-        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-      });
+  beforeEach(function() {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-      it('should sort filtered items', function() {
-        grid._filters[1].value = 'r';
-        grid.querySelector('vaadin-grid-sorter').direction = 'asc';
-        expect(grid.size).to.equal(2);
-        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-      });
+    grid = fixture('grid');
+    flush$0();
 
-    });
+    if (Element) {
+      flushColumns(grid);
+    }
 
-    describe('lazy init', function() {
+    flushFilters(grid);
+    grid._filters[0].value = '';
+    grid._filters[1].value = '';
+    flushFilters(grid);
+    grid.items = [{
+      first: 'foo',
+      last: 'bar'
+    }, {
+      first: 'foo',
+      last: 'baz'
+    }, {
+      first: 'bar',
+      last: 'bar'
+    }];
 
-      it('should not filter if there is no data yet', function() {
-        this.timeout(30000);
-        var grid = fixture('grid');
-        grid.size = 100;
-        grid.dataProvider = function(params, callback) {
-          // Don't provide any data
-        };
-        Polymer.dom.flush();
-        expect(flushFilters.bind(this, grid)).to.not.throw(Error);
-      });
+    if (grid._observer.flush) {
+      grid._observer.flush();
+    }
+  });
 
-    });
-  </script>
+  it('should filter automatically', function() {
+    expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
+    expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+    expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('bar');
+    grid._filters[0].value = 'r';
+    flushFilters(grid);
+    expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+  });
+
+  it('should sort filtered items', function() {
+    grid._filters[1].value = 'r';
+    grid.querySelector('vaadin-grid-sorter').direction = 'asc';
+    expect(grid.size).to.equal(2);
+    expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+    expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+  });
+
+});
+
+describe('lazy init', function() {
+
+  it('should not filter if there is no data yet', function() {
+    this.timeout(30000);
+    var grid = fixture('grid');
+    grid.size = 100;
+    grid.dataProvider = function(params, callback) {
+      // Don't provide any data
+    };
+    flush$0();
+    expect(flushFilters.bind(this, grid)).to.not.throw(Error);
+  });
+
+});
+</script>
 
 </body>
 

@@ -9,10 +9,10 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../vaadin-grid-selection-column.html">
-  <link rel="import" href="../vaadin-grid-column-group.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../vaadin-grid-selection-column.js"></script>
+  <script type="module" src="../vaadin-grid-column-group.js"></script>
 
   <style>
     vaadin-grid {
@@ -40,25 +40,31 @@
         </vaadin-grid-column-group>
       </vaadin-grid>
     </template>
-    <script>
-      HTMLImports.whenReady(function() {
-        Polymer({is: 'grid-wrapper'});
-      });
-    </script>
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-selection-column.js';
+import '../vaadin-grid-column-group.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({is: 'grid-wrapper'});
+</script>
   </dom-module>
 
   <dom-module id="x-boolean-toggle">
     <template>[[value]]</template>
-    <script>
-      HTMLImports.whenReady(function() {
-        Polymer({
-          is: 'x-boolean-toggle',
-          properties: {
-            value: {type: Boolean, notify: true}
-          },
-        });
-      });
-    </script>
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-selection-column.js';
+import '../vaadin-grid-column-group.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'x-boolean-toggle',
+  properties: {
+    value: {type: Boolean, notify: true}
+  },
+});
+</script>
   </dom-module>
 
   <test-fixture id="column">
@@ -335,580 +341,586 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('light dom observing', function() {
-      var wrapper, grid, scroller, header, body, footer, repeater;
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-selection-column.js';
+import '../vaadin-grid-column-group.js';
+import { dom, flush as flush$0 } from '../../polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../../polymer/polymer-element.js';
+describe('light dom observing', function() {
+  var wrapper, grid, scroller, header, body, footer, repeater;
 
-      function init(fixtureName, options) {
-        grid = fixture(fixtureName);
-        if (grid.$.grid) {
-          // unwrap the <grid-wrapper>
-          wrapper = grid;
-          grid = grid.$.grid || grid;
+  function init(fixtureName, options) {
+    grid = fixture(fixtureName);
+    if (grid.$.grid) {
+      // unwrap the <grid-wrapper>
+      wrapper = grid;
+      grid = grid.$.grid || grid;
+    }
+
+    // <template is="dom-template"> does not work in Polymer 2, while
+    // <test-fixture> does not support <dom-template>.  We have to set
+    // the fixture data manually.
+    repeater = dom(grid).querySelector(Element ? 'dom-repeat' : 'template[is="dom-repeat"]');
+    if (repeater) {
+      repeater.items = options.columns;
+    }
+
+    // Assign the slot to the <grid-wrapper> children.
+    if (wrapper) {
+      Array.prototype.forEach.call(dom(wrapper).children, function(wrapperChild) {
+        dom(wrapperChild).setAttribute('slot', options && options.inGroup ? 'group' : 'grid');
+      });
+    }
+
+    scroller = grid.$.scroller;
+    header = grid.$.header;
+    body = grid.$.items;
+    footer = grid.$.footer;
+
+    grid.dataProvider = infiniteDataProvider;
+    flush$0();
+  }
+
+  function expectFirstColumnHeader(columnName, level) {
+    level = level || 0;
+    expect(getCellContent(getRows(header)[level].cells[0]).textContent)
+      .to.contain(columnName + ' header');
+  }
+
+  function expectFirstColumnFooter(columnName, level) {
+    level = level || 0;
+    var lastLevel = getRows(header).length - 1;
+    expect(getCellContent(getRows(footer)[lastLevel - level].cells[0]).textContent)
+      .to.contain(columnName + ' footer');
+  }
+
+  function expectFirstColumnBody(columnName) {
+    expect(getCellContent(getRows(body)[0].cells[0]).textContent)
+      .to.contain(columnName + ' body foo0');
+    expect(getCellContent(getRows(body)[1].cells[0]).textContent)
+      .to.contain(columnName + ' body foo1');
+    expect(getCellContent(getRows(body)[2].cells[0]).textContent)
+      .to.contain(columnName + ' body foo2');
+  }
+
+  function expectFirstColumn(columnName, level) {
+    expectFirstColumnHeader(columnName, level);
+    expectFirstColumnFooter(columnName, level);
+    expectFirstColumnBody(columnName);
+  }
+
+  function expectNumberOfColumns(number) {
+    var lastLevel = getRows(header).length - 1;
+    expect(getRows(header)[lastLevel].cells.length).to.be.equal(number);
+    expect(getRows(body)[0].cells.length).to.be.equal(number);
+    expect(getRows(footer)[0].cells.length).to.be.equal(number);
+  }
+
+  describe('generic operations', function() {
+    describe('columns inside grid', function() {
+      beforeEach(function(done) {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('columns');
+        flush(done);
+      });
+
+      it('should support adding late', function(done) {
+        var column = fixture('column');
+        dom(grid).insertBefore(column, dom(grid).firstChild);
+        flush$0();
+        if (grid._observer.flush) {
+          grid._observer.flush();
         }
 
-        // <template is="dom-template"> does not work in Polymer 2, while
-        // <test-fixture> does not support <dom-template>.  We have to set
-        // the fixture data manually.
-        repeater = Polymer.dom(grid).querySelector(Polymer.Element ? 'dom-repeat' : 'template[is="dom-repeat"]');
-        if (repeater) {
-          repeater.items = options.columns;
+        flush(function() {
+          expectFirstColumn('some');
+          done();
+        });
+      });
+
+      it('should support adding selection column late', function(done) {
+        var column = fixture('selection-column');
+        dom(grid).insertBefore(column, dom(grid).firstChild);
+        flush$0();
+        if (grid._observer.flush) {
+          grid._observer.flush();
         }
 
-        // Assign the slot to the <grid-wrapper> children.
-        if (wrapper) {
-          Array.prototype.forEach.call(Polymer.dom(wrapper).children, function(wrapperChild) {
-            Polymer.dom(wrapperChild).setAttribute('slot', options && options.inGroup ? 'group' : 'grid');
+        flush(function() {
+          expectFirstColumn('some');
+          done();
+        });
+      });
+
+      it('should support removing late', function(done) {
+        var column = dom(grid).querySelector('vaadin-grid-column');
+        dom(grid).removeChild(column);
+        flush$0();
+        if (grid._observer.flush) {
+          grid._observer.flush();
+        }
+
+        flush(function() {
+          expectFirstColumn('second');
+          done();
+        });
+      });
+
+      it('should invoke node observer twice when removing columns', function(done) {
+        var column = dom(grid).querySelector('vaadin-grid-column');
+        var spy = sinon.spy(grid._observer, Element ? 'callback' : 'fn');
+        dom(grid).removeChild(column);
+        flush(function() {
+          // Once for the column and in effect of that, once for the removed cell content elements
+          expect(spy.callCount).to.gte(2);
+          done();
+        });
+      });
+
+      it('should invoke node observer twice when adding columns', function(done) {
+        var column = fixture('column');
+        var spy = sinon.spy(grid._observer, Element ? 'callback' : 'fn');
+        dom(grid).insertBefore(column, dom(grid).firstChild);
+        flush(function() {
+          // Once for the column and in effect of that, once for the added cell content elements
+          expect(spy.callCount).to.gte(2);
+          done();
+        });
+      });
+
+      it('should not invoke on row reorder', function(done) {
+        grid.size = 100;
+        flush(function() {
+          var spy = sinon.spy(grid._observer, Element ? 'callback' : 'fn');
+          scrollToEnd(grid, function() {
+            expect(spy.called).to.be.false;
+            done();
           });
-        }
+        });
+      });
 
-        scroller = grid.$.scroller;
-        header = grid.$.header;
-        body = grid.$.items;
-        footer = grid.$.footer;
+      // TODO: Enable this test when the header cell cache is enabled back
+      // it('should reuse column cells', function() {
+      //   Polymer.dom.flush();
+      //   var content = getHeaderCellContent(grid, 0, 0);
+      //   Polymer.dom(grid).appendChild(grid._columnTree[0][0]);
+      //   Polymer.dom.flush();
+      //   if (grid._observer.flush) {
+      //     grid._observer.flush();
+      //   }
+      //   expect(getHeaderCellContent(grid, 0, 1)).to.equal(content);
+      // });
 
-        grid.dataProvider = infiniteDataProvider;
-        Polymer.dom.flush();
-      }
+      it('should not create new cells', function() {
+        var row = getRows(grid.$.items)[0];
+        var spy = sinon.spy(row, '_createCell');
+        flush$0();
+        var content = getHeaderCellContent(grid, 0, 0);
+        dom(grid).appendChild(grid._columnTree[0][0]);
+        flush$0();
+        expect(spy.called).to.be.false;
+      });
 
-      function expectFirstColumnHeader(columnName, level) {
-        level = level || 0;
-        expect(getCellContent(getRows(header)[level].cells[0]).textContent)
-          .to.contain(columnName + ' header');
-      }
+    });
 
-      function expectFirstColumnFooter(columnName, level) {
-        level = level || 0;
-        var lastLevel = getRows(header).length - 1;
-        expect(getCellContent(getRows(footer)[lastLevel - level].cells[0]).textContent)
-          .to.contain(columnName + ' footer');
-      }
+    describe('columns inside group', function() {
+      var firstGroup;
 
-      function expectFirstColumnBody(columnName) {
-        expect(getCellContent(getRows(body)[0].cells[0]).textContent)
-          .to.contain(columnName + ' body foo0');
-        expect(getCellContent(getRows(body)[1].cells[0]).textContent)
-          .to.contain(columnName + ' body foo1');
-        expect(getCellContent(getRows(body)[2].cells[0]).textContent)
-          .to.contain(columnName + ' body foo2');
-      }
+      beforeEach(function(done) {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
 
-      function expectFirstColumn(columnName, level) {
-        expectFirstColumnHeader(columnName, level);
-        expectFirstColumnFooter(columnName, level);
-        expectFirstColumnBody(columnName);
-      }
+        init('plain-groups');
+        firstGroup = dom(grid).querySelector('vaadin-grid-column-group');
+        flush(done);
+      });
 
-      function expectNumberOfColumns(number) {
-        var lastLevel = getRows(header).length - 1;
-        expect(getRows(header)[lastLevel].cells.length).to.be.equal(number);
-        expect(getRows(body)[0].cells.length).to.be.equal(number);
-        expect(getRows(footer)[0].cells.length).to.be.equal(number);
-      }
+      it('should support adding late', function(done) {
+        var column = fixture('column');
+        dom(firstGroup).insertBefore(column, dom(firstGroup).firstChild);
+        flush$0();
 
-      describe('generic operations', function() {
-        describe('columns inside grid', function() {
-          beforeEach(function(done) {
+        flush(function() {
+          expectFirstColumn('some', 1);
+          done();
+        });
+      });
+
+      it('should support removing late', function(done) {
+        var column = dom(firstGroup).querySelector('vaadin-grid-column');
+        dom(firstGroup).removeChild(column);
+        flush$0();
+
+        flush(function() {
+          expectFirstColumn('first bar', 1);
+          done();
+        });
+      });
+    });
+
+    describe('groups inside grid', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('plain-groups');
+      });
+
+      it('should support adding late', function(done) {
+        var group = fixture('group');
+        dom(grid).insertBefore(group, dom(grid).firstChild);
+        flush$0();
+
+        flush(function() {
+          expectFirstColumnHeader('some group', 0);
+          expectFirstColumnFooter('some group', 0);
+          expectFirstColumn('some foo', 1);
+          done();
+        });
+      });
+
+      it('should support removing late', function(done) {
+        var group = dom(grid).querySelector('vaadin-grid-column-group');
+        dom(grid).removeChild(group);
+        flush$0();
+
+        flush(function() {
+          expectFirstColumnHeader('second group', 0);
+          expectFirstColumnFooter('second group', 0);
+          expectFirstColumn('second foo', 1);
+          done();
+        });
+      });
+    });
+
+    describe('groups inside group', function() {
+      var firstGroup;
+
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('nested-groups');
+        firstGroup = dom(grid).querySelector('vaadin-grid-column-group');
+      });
+
+      it('should support adding late', function(done) {
+        var group = fixture('group');
+        dom(firstGroup).insertBefore(group, dom(firstGroup).firstChild);
+        flush$0();
+
+        flush(function() {
+          expectFirstColumnHeader('some group', 1);
+          expectFirstColumnFooter('some group', 1);
+          expectFirstColumn('some foo', 2);
+          done();
+        });
+      });
+
+      it('should support removing late', function(done) {
+        var group = dom(firstGroup).querySelector('vaadin-grid-column-group');
+        dom(firstGroup).removeChild(group);
+        flush$0();
+
+        flush(function() {
+          expectFirstColumnHeader('second nested group', 1);
+          expectFirstColumnFooter('second nested group', 1);
+          expectFirstColumn('second foo', 2);
+          done();
+        });
+      });
+    });
+  });
+
+  function shouldSupportDomRepeat(prefix, columnsLevel) {
+    it('should provide initial state', function(done) {
+      repeater.render();
+
+      flush(function() {
+        expectFirstColumn(prefix + ' a', columnsLevel);
+        expectFirstColumn('', columnsLevel);
+        expectNumberOfColumns(3);
+        done();
+      });
+    });
+
+    it('should add columns late', function(done) {
+      repeater.unshift('items', 'd');
+      repeater.render();
+
+      flush(function() {
+        expectFirstColumn(prefix + ' d', columnsLevel);
+        expectFirstColumn('', columnsLevel);
+        expectNumberOfColumns(4);
+        done();
+      });
+    });
+
+    it('should remove columns late', function(done) {
+      repeater.shift('items');
+      repeater.render();
+
+      flush(function() {
+        expectFirstColumn(prefix + ' b', columnsLevel);
+        expectFirstColumn('', columnsLevel);
+        expectNumberOfColumns(2);
+        done();
+      });
+    });
+  }
+
+  describe('dom-repeat', function() {
+    var columns;
+
+    beforeEach(function() {
+      columns = 'a b c'.split(' ');
+    });
+
+    describe('columns inside grid', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('dom-repeat-columns', {columns: columns});
+      });
+
+      shouldSupportDomRepeat('grid repeats column');
+    });
+
+    describe('columns inside group', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('dom-repeat-columns-in-group', {columns: columns});
+      });
+
+      shouldSupportDomRepeat('group repeats column', 1);
+    });
+
+    describe('groups inside grid', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('dom-repeat-groups', {columns: columns});
+      });
+
+      shouldSupportDomRepeat('grid repeats group', 1);
+    });
+
+    describe('groups inside group', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('dom-repeat-groups-in-group', {columns: columns});
+      });
+
+      shouldSupportDomRepeat('group repeats group', 2);
+    });
+
+    describe('with row detail', function() {
+      beforeEach(function() {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
+
+        init('dom-repeat-columns-expandable', {columns: columns});
+      });
+
+      it('should obey the "expanded" template property', function(done) {
+        repeater.render();
+        flush(function() {
+          var row = getRows(grid.$.items)[0];
+          var cell = getRowCells(row)[0];
+          var toggle = getCellContent(cell).children[0];
+          // expand row details
+          toggle.value = true;
+
+          expect(row.expanded).to.be.true;
+          done();
+        });
+
+      });
+    });
+  });
+
+  describe('effective children', function() {
+    function shouldSupportEffectiveChildren(inGroup) {
+      describe('children mutations', function() {
+        describe('with columns', function() {
+          beforeEach(function() {
             // The before each block times out in CI with Firefox on Polymer 2
             this.timeout(30000);
 
-            init('columns');
-            flush(done);
+            init('effective-children-columns', {inGroup: inGroup});
           });
 
-          it('should support adding late', function(done) {
-            var column = fixture('column');
-            Polymer.dom(grid).insertBefore(column, Polymer.dom(grid).firstChild);
-            Polymer.dom.flush();
-            if (grid._observer.flush) {
-              grid._observer.flush();
-            }
-
+          it('should provide initial state', function(done) {
             flush(function() {
-              expectFirstColumn('some');
+              expectFirstColumn('foo', 1);
+              expectNumberOfColumns(3);
               done();
             });
           });
 
-          it('should support adding selection column late', function(done) {
-            var column = fixture('selection-column');
-            Polymer.dom(grid).insertBefore(column, Polymer.dom(grid).firstChild);
-            Polymer.dom.flush();
-            if (grid._observer.flush) {
-              grid._observer.flush();
-            }
+          it('should support adding late', function(done) {
+            this.timeout(30000);
+            var column = fixture('column');
+            dom(column).setAttribute('slot', inGroup ? 'group' : 'grid');
+            dom(wrapper).insertBefore(column, dom(wrapper).firstChild);
+            flush$0();
 
             flush(function() {
-              expectFirstColumn('some');
+              expectFirstColumn('some', 1);
+              expectNumberOfColumns(4);
               done();
             });
           });
 
           it('should support removing late', function(done) {
-            var column = Polymer.dom(grid).querySelector('vaadin-grid-column');
-            Polymer.dom(grid).removeChild(column);
-            Polymer.dom.flush();
-            if (grid._observer.flush) {
-              grid._observer.flush();
-            }
+            var column = dom(wrapper).querySelector('vaadin-grid-column');
+            dom(wrapper).removeChild(column);
+            flush$0();
 
             flush(function() {
-              expectFirstColumn('second');
+              expectFirstColumn('bar', 1);
+              expectNumberOfColumns(2);
+              done();
+            });
+          });
+        });
+
+        describe('with groups', function() {
+          var firstGroup;
+
+          beforeEach(function() {
+            // The before each block times out in CI with Firefox on Polymer 2
+            this.timeout(30000);
+
+            init('effective-children-groups', {inGroup: inGroup});
+            firstGroup = dom(wrapper).querySelector('vaadin-grid-column-group');
+          });
+
+          it('should provide initial state', function(done) {
+            flush(function() {
+              expectFirstColumn('first foo', inGroup ? 2 : 1);
+              expectNumberOfColumns(5);
               done();
             });
           });
 
-          it('should invoke node observer twice when removing columns', function(done) {
-            var column = Polymer.dom(grid).querySelector('vaadin-grid-column');
-            var spy = sinon.spy(grid._observer, Polymer.Element ? 'callback' : 'fn');
-            Polymer.dom(grid).removeChild(column);
+          it('should support adding late', function(done) {
+            var group = fixture('group');
+            dom(group).setAttribute('slot', inGroup ? 'group' : 'grid');
+            dom(wrapper).insertBefore(group, dom(wrapper).firstChild);
+            flush$0();
+
             flush(function() {
-              // Once for the column and in effect of that, once for the removed cell content elements
-              expect(spy.callCount).to.gte(2);
+              expectFirstColumn('some foo', inGroup ? 2 : 1);
+              expectNumberOfColumns(7);
               done();
             });
           });
 
-          it('should invoke node observer twice when adding columns', function(done) {
+          it('should support removing late', function(done) {
+            dom(wrapper).removeChild(firstGroup);
+            flush$0();
+
+            flush(function() {
+              expectFirstColumn('second foo', inGroup ? 2 : 1);
+              expectNumberOfColumns(3);
+              done();
+            });
+          });
+        });
+      });
+
+      describe('nested group mutations', function() {
+        var firstGroup;
+
+        beforeEach(function() {
+          // The before each block times out in CI with Firefox on Polymer 2
+          this.timeout(30000);
+
+          init('effective-children-groups', {inGroup: inGroup});
+          firstGroup = dom(wrapper).querySelector('vaadin-grid-column-group');
+        });
+
+        describe('with columns', function() {
+          it('should support adding late', function(done) {
             var column = fixture('column');
-            var spy = sinon.spy(grid._observer, Polymer.Element ? 'callback' : 'fn');
-            Polymer.dom(grid).insertBefore(column, Polymer.dom(grid).firstChild);
+            dom(firstGroup).insertBefore(column, dom(firstGroup).firstChild);
+            flush$0();
+
             flush(function() {
-              // Once for the column and in effect of that, once for the added cell content elements
-              expect(spy.callCount).to.gte(2);
+              expectFirstColumn('some', inGroup ? 2 : 1);
+              expectNumberOfColumns(6);
               done();
             });
           });
 
-          it('should not invoke on row reorder', function(done) {
-            grid.size = 100;
+          it('should support removing late', function(done) {
+            var column = dom(firstGroup).querySelector('vaadin-grid-column');
+            dom(firstGroup).removeChild(column);
+            flush$0();
+
             flush(function() {
-              var spy = sinon.spy(grid._observer, Polymer.Element ? 'callback' : 'fn');
-              scrollToEnd(grid, function() {
-                expect(spy.called).to.be.false;
+              expectFirstColumn('first bar', inGroup ? 2 : 1);
+              expectNumberOfColumns(4);
+              done();
+            });
+          });
+        });
+
+        describe('with groups', function() {
+          it('should support adding late', function(done) {
+            var group = fixture('group');
+            dom(firstGroup).insertBefore(group, dom(firstGroup).firstChild);
+            flush$0();
+
+            flush(function() {
+              expectFirstColumn('some foo', inGroup ? 3 : 2);
+              expectNumberOfColumns(7);
+              done();
+            });
+          });
+
+          it('should support removing late', function(done) {
+            var group = fixture('group');
+            dom(firstGroup).insertBefore(group, dom(firstGroup).firstChild);
+            flush$0();
+
+            flush(function() {
+              expectNumberOfColumns(7);
+              dom(firstGroup).removeChild(group);
+              flush$0();
+
+              flush(function() {
+                expectFirstColumn('first foo', inGroup ? 2 : 1);
+                expectNumberOfColumns(5);
                 done();
               });
             });
           });
-
-          // TODO: Enable this test when the header cell cache is enabled back
-          // it('should reuse column cells', function() {
-          //   Polymer.dom.flush();
-          //   var content = getHeaderCellContent(grid, 0, 0);
-          //   Polymer.dom(grid).appendChild(grid._columnTree[0][0]);
-          //   Polymer.dom.flush();
-          //   if (grid._observer.flush) {
-          //     grid._observer.flush();
-          //   }
-          //   expect(getHeaderCellContent(grid, 0, 1)).to.equal(content);
-          // });
-
-          it('should not create new cells', function() {
-            var row = getRows(grid.$.items)[0];
-            var spy = sinon.spy(row, '_createCell');
-            Polymer.dom.flush();
-            var content = getHeaderCellContent(grid, 0, 0);
-            Polymer.dom(grid).appendChild(grid._columnTree[0][0]);
-            Polymer.dom.flush();
-            expect(spy.called).to.be.false;
-          });
-
-        });
-
-        describe('columns inside group', function() {
-          var firstGroup;
-
-          beforeEach(function(done) {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('plain-groups');
-            firstGroup = Polymer.dom(grid).querySelector('vaadin-grid-column-group');
-            flush(done);
-          });
-
-          it('should support adding late', function(done) {
-            var column = fixture('column');
-            Polymer.dom(firstGroup).insertBefore(column, Polymer.dom(firstGroup).firstChild);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumn('some', 1);
-              done();
-            });
-          });
-
-          it('should support removing late', function(done) {
-            var column = Polymer.dom(firstGroup).querySelector('vaadin-grid-column');
-            Polymer.dom(firstGroup).removeChild(column);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumn('first bar', 1);
-              done();
-            });
-          });
-        });
-
-        describe('groups inside grid', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('plain-groups');
-          });
-
-          it('should support adding late', function(done) {
-            var group = fixture('group');
-            Polymer.dom(grid).insertBefore(group, Polymer.dom(grid).firstChild);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumnHeader('some group', 0);
-              expectFirstColumnFooter('some group', 0);
-              expectFirstColumn('some foo', 1);
-              done();
-            });
-          });
-
-          it('should support removing late', function(done) {
-            var group = Polymer.dom(grid).querySelector('vaadin-grid-column-group');
-            Polymer.dom(grid).removeChild(group);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumnHeader('second group', 0);
-              expectFirstColumnFooter('second group', 0);
-              expectFirstColumn('second foo', 1);
-              done();
-            });
-          });
-        });
-
-        describe('groups inside group', function() {
-          var firstGroup;
-
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('nested-groups');
-            firstGroup = Polymer.dom(grid).querySelector('vaadin-grid-column-group');
-          });
-
-          it('should support adding late', function(done) {
-            var group = fixture('group');
-            Polymer.dom(firstGroup).insertBefore(group, Polymer.dom(firstGroup).firstChild);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumnHeader('some group', 1);
-              expectFirstColumnFooter('some group', 1);
-              expectFirstColumn('some foo', 2);
-              done();
-            });
-          });
-
-          it('should support removing late', function(done) {
-            var group = Polymer.dom(firstGroup).querySelector('vaadin-grid-column-group');
-            Polymer.dom(firstGroup).removeChild(group);
-            Polymer.dom.flush();
-
-            flush(function() {
-              expectFirstColumnHeader('second nested group', 1);
-              expectFirstColumnFooter('second nested group', 1);
-              expectFirstColumn('second foo', 2);
-              done();
-            });
-          });
         });
       });
+    }
 
-      function shouldSupportDomRepeat(prefix, columnsLevel) {
-        it('should provide initial state', function(done) {
-          repeater.render();
-
-          flush(function() {
-            expectFirstColumn(prefix + ' a', columnsLevel);
-            expectFirstColumn('', columnsLevel);
-            expectNumberOfColumns(3);
-            done();
-          });
-        });
-
-        it('should add columns late', function(done) {
-          repeater.unshift('items', 'd');
-          repeater.render();
-
-          flush(function() {
-            expectFirstColumn(prefix + ' d', columnsLevel);
-            expectFirstColumn('', columnsLevel);
-            expectNumberOfColumns(4);
-            done();
-          });
-        });
-
-        it('should remove columns late', function(done) {
-          repeater.shift('items');
-          repeater.render();
-
-          flush(function() {
-            expectFirstColumn(prefix + ' b', columnsLevel);
-            expectFirstColumn('', columnsLevel);
-            expectNumberOfColumns(2);
-            done();
-          });
-        });
-      }
-
-      describe('dom-repeat', function() {
-        var columns;
-
-        beforeEach(function() {
-          columns = 'a b c'.split(' ');
-        });
-
-        describe('columns inside grid', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('dom-repeat-columns', {columns: columns});
-          });
-
-          shouldSupportDomRepeat('grid repeats column');
-        });
-
-        describe('columns inside group', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('dom-repeat-columns-in-group', {columns: columns});
-          });
-
-          shouldSupportDomRepeat('group repeats column', 1);
-        });
-
-        describe('groups inside grid', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('dom-repeat-groups', {columns: columns});
-          });
-
-          shouldSupportDomRepeat('grid repeats group', 1);
-        });
-
-        describe('groups inside group', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('dom-repeat-groups-in-group', {columns: columns});
-          });
-
-          shouldSupportDomRepeat('group repeats group', 2);
-        });
-
-        describe('with row detail', function() {
-          beforeEach(function() {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
-
-            init('dom-repeat-columns-expandable', {columns: columns});
-          });
-
-          it('should obey the "expanded" template property', function(done) {
-            repeater.render();
-            flush(function() {
-              var row = getRows(grid.$.items)[0];
-              var cell = getRowCells(row)[0];
-              var toggle = getCellContent(cell).children[0];
-              // expand row details
-              toggle.value = true;
-
-              expect(row.expanded).to.be.true;
-              done();
-            });
-
-          });
-        });
-      });
-
-      describe('effective children', function() {
-        function shouldSupportEffectiveChildren(inGroup) {
-          describe('children mutations', function() {
-            describe('with columns', function() {
-              beforeEach(function() {
-                // The before each block times out in CI with Firefox on Polymer 2
-                this.timeout(30000);
-
-                init('effective-children-columns', {inGroup: inGroup});
-              });
-
-              it('should provide initial state', function(done) {
-                flush(function() {
-                  expectFirstColumn('foo', 1);
-                  expectNumberOfColumns(3);
-                  done();
-                });
-              });
-
-              it('should support adding late', function(done) {
-                this.timeout(30000);
-                var column = fixture('column');
-                Polymer.dom(column).setAttribute('slot', inGroup ? 'group' : 'grid');
-                Polymer.dom(wrapper).insertBefore(column, Polymer.dom(wrapper).firstChild);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('some', 1);
-                  expectNumberOfColumns(4);
-                  done();
-                });
-              });
-
-              it('should support removing late', function(done) {
-                var column = Polymer.dom(wrapper).querySelector('vaadin-grid-column');
-                Polymer.dom(wrapper).removeChild(column);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('bar', 1);
-                  expectNumberOfColumns(2);
-                  done();
-                });
-              });
-            });
-
-            describe('with groups', function() {
-              var firstGroup;
-
-              beforeEach(function() {
-                // The before each block times out in CI with Firefox on Polymer 2
-                this.timeout(30000);
-
-                init('effective-children-groups', {inGroup: inGroup});
-                firstGroup = Polymer.dom(wrapper).querySelector('vaadin-grid-column-group');
-              });
-
-              it('should provide initial state', function(done) {
-                flush(function() {
-                  expectFirstColumn('first foo', inGroup ? 2 : 1);
-                  expectNumberOfColumns(5);
-                  done();
-                });
-              });
-
-              it('should support adding late', function(done) {
-                var group = fixture('group');
-                Polymer.dom(group).setAttribute('slot', inGroup ? 'group' : 'grid');
-                Polymer.dom(wrapper).insertBefore(group, Polymer.dom(wrapper).firstChild);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('some foo', inGroup ? 2 : 1);
-                  expectNumberOfColumns(7);
-                  done();
-                });
-              });
-
-              it('should support removing late', function(done) {
-                Polymer.dom(wrapper).removeChild(firstGroup);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('second foo', inGroup ? 2 : 1);
-                  expectNumberOfColumns(3);
-                  done();
-                });
-              });
-            });
-          });
-
-          describe('nested group mutations', function() {
-            var firstGroup;
-
-            beforeEach(function() {
-              // The before each block times out in CI with Firefox on Polymer 2
-              this.timeout(30000);
-
-              init('effective-children-groups', {inGroup: inGroup});
-              firstGroup = Polymer.dom(wrapper).querySelector('vaadin-grid-column-group');
-            });
-
-            describe('with columns', function() {
-              it('should support adding late', function(done) {
-                var column = fixture('column');
-                Polymer.dom(firstGroup).insertBefore(column, Polymer.dom(firstGroup).firstChild);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('some', inGroup ? 2 : 1);
-                  expectNumberOfColumns(6);
-                  done();
-                });
-              });
-
-              it('should support removing late', function(done) {
-                var column = Polymer.dom(firstGroup).querySelector('vaadin-grid-column');
-                Polymer.dom(firstGroup).removeChild(column);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('first bar', inGroup ? 2 : 1);
-                  expectNumberOfColumns(4);
-                  done();
-                });
-              });
-            });
-
-            describe('with groups', function() {
-              it('should support adding late', function(done) {
-                var group = fixture('group');
-                Polymer.dom(firstGroup).insertBefore(group, Polymer.dom(firstGroup).firstChild);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectFirstColumn('some foo', inGroup ? 3 : 2);
-                  expectNumberOfColumns(7);
-                  done();
-                });
-              });
-
-              it('should support removing late', function(done) {
-                var group = fixture('group');
-                Polymer.dom(firstGroup).insertBefore(group, Polymer.dom(firstGroup).firstChild);
-                Polymer.dom.flush();
-
-                flush(function() {
-                  expectNumberOfColumns(7);
-                  Polymer.dom(firstGroup).removeChild(group);
-                  Polymer.dom.flush();
-
-                  flush(function() {
-                    expectFirstColumn('first foo', inGroup ? 2 : 1);
-                    expectNumberOfColumns(5);
-                    done();
-                  });
-                });
-              });
-            });
-          });
-        }
-
-        describe('of grid', function() {
-          shouldSupportEffectiveChildren(false);
-        });
-
-        describe('of group', function() {
-          shouldSupportEffectiveChildren(true);
-        });
-      });
+    describe('of grid', function() {
+      shouldSupportEffectiveChildren(false);
     });
-  </script>
+
+    describe('of group', function() {
+      shouldSupportEffectiveChildren(true);
+    });
+  });
+});
+</script>
 
 </body>
 

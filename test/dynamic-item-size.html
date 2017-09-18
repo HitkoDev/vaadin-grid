@@ -8,8 +8,8 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
 
   <custom-style>
     <style is="custom-style">
@@ -39,44 +39,46 @@
     </template>
   </test-fixture>
 
-  <script>
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import { updateStyles } from '../../polymer/lib/mixins/element-mixin.js';
 
-    describe('Dynamic item size', function() {
-      var scroller, grid;
+describe('Dynamic item size', function() {
+  var scroller, grid;
 
-      beforeEach(function(done) {
-        // The before each block times out in CI with Firefox on Polymer 2
-        this.timeout(30000);
+  beforeEach(function(done) {
+    // The before each block times out in CI with Firefox on Polymer 2
+    this.timeout(30000);
 
-        grid = fixture('default');
-        grid.dataProvider = infiniteDataProvider;
-        scroller = grid.$.scroller;
-        setTimeout(done, 1);
-      });
+    grid = fixture('default');
+    grid.dataProvider = infiniteDataProvider;
+    scroller = grid.$.scroller;
+    setTimeout(done, 1);
+  });
 
-      it('update size using item index', function() {
-        var firstItem = getFirstVisibleItem(scroller);
+  it('update size using item index', function() {
+    var firstItem = getFirstVisibleItem(scroller);
 
-        expect(firstItem.offsetHeight).to.equal(35);
+    expect(firstItem.offsetHeight).to.equal(35);
 
-        grid.classList.add('high');
-        Polymer.updateStyles();
+    grid.classList.add('high');
+    updateStyles();
 
-        scroller.updateSizeForItem(0);
-        expect(firstItem.offsetHeight).to.eql(117);
-      });
+    scroller.updateSizeForItem(0);
+    expect(firstItem.offsetHeight).to.eql(117);
+  });
 
-      it('ignore items that are not rendered', function(done) {
-        scroller.size = 100;
+  it('ignore items that are not rendered', function(done) {
+    scroller.size = 100;
 
-        flush(function() {
-          scroller.updateSizeForItem(100);
-          done();
-        });
-      });
+    flush(function() {
+      scroller.updateSizeForItem(100);
+      done();
     });
-
-  </script>
+  });
+});
+</script>
 
 </body>
 </html>

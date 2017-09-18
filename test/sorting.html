@@ -10,9 +10,9 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../vaadin-grid-sorter.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../vaadin-grid-sorter.js"></script>
 </head>
 
 <body>
@@ -56,457 +56,461 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('sorting', function() {
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../vaadin-grid-sorter.js';
+import { dom } from '../../polymer/lib/legacy/polymer.dom.js';
+describe('sorting', function() {
 
-      describe('sorter', function() {
-        var sorter, title, button, indicators, directionIndicator, orderIndicator, announcer;
+  describe('sorter', function() {
+    var sorter, title, button, indicators, directionIndicator, orderIndicator, announcer;
 
-        beforeEach(function() {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+    beforeEach(function() {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-          sorter = fixture('sorter');
-          title = Polymer.dom(sorter).querySelector('.title');
-          button = Polymer.dom(sorter).querySelector('button');
-          indicators = Polymer.dom(sorter.root).querySelector('#indicators');
-          directionIndicator = Polymer.dom(sorter.root).querySelector('#direction');
-          orderIndicator = Polymer.dom(sorter.root).querySelector('#order');
-          announcer = Polymer.dom(sorter.root).querySelector('#announcer');
-        });
+      sorter = fixture('sorter');
+      title = dom(sorter).querySelector('.title');
+      button = dom(sorter).querySelector('button');
+      indicators = dom(sorter.root).querySelector('#indicators');
+      directionIndicator = dom(sorter.root).querySelector('#direction');
+      orderIndicator = dom(sorter.root).querySelector('#order');
+      announcer = dom(sorter.root).querySelector('#announcer');
+    });
 
-        it('should have default direction', function() {
-          expect(sorter.direction).to.equal(null);
-        });
+    it('should have default direction', function() {
+      expect(sorter.direction).to.equal(null);
+    });
 
-        it('should toggle direction', function() {
-          click(title);
-          expect(sorter.direction).to.equal('asc');
-          click(title);
-          expect(sorter.direction).to.equal('desc');
-          click(title);
-          expect(sorter.direction).to.equal(null);
-        });
+    it('should toggle direction', function() {
+      click(title);
+      expect(sorter.direction).to.equal('asc');
+      click(title);
+      expect(sorter.direction).to.equal('desc');
+      click(title);
+      expect(sorter.direction).to.equal(null);
+    });
 
-        it('should not toggle on focusable click', function() {
-          click(button);
-          expect(sorter.direction).to.equal(null);
-        });
+    it('should not toggle on focusable click', function() {
+      click(button);
+      expect(sorter.direction).to.equal(null);
+    });
 
-        it('should fire a sorter-changed event', function(done) {
-          sorter.addEventListener('sorter-changed', function() {
-            done();
-          });
-          sorter.direction = 'asc';
-        });
+    it('should fire a sorter-changed event', function(done) {
+      sorter.addEventListener('sorter-changed', function() {
+        done();
+      });
+      sorter.direction = 'asc';
+    });
 
-        it('should show order indicator', function() {
-          expect(orderIndicator.innerText).to.equal('');
-          sorter._order = 0;
-          expect(orderIndicator.innerText).to.equal('1');
-          sorter._order = 4;
-          expect(orderIndicator.innerText).to.equal('5');
-        });
+    it('should show order indicator', function() {
+      expect(orderIndicator.innerText).to.equal('');
+      sorter._order = 0;
+      expect(orderIndicator.innerText).to.equal('1');
+      sorter._order = 4;
+      expect(orderIndicator.innerText).to.equal('5');
+    });
 
-        it('should show direction indicator', function() {
-          expect(sorter.getAttribute('direction')).to.equal(null);
-          sorter.direction = 'asc';
-          expect(sorter.getAttribute('direction')).to.equal('asc');
-          sorter.direction = 'desc';
-          expect(sorter.getAttribute('direction')).to.equal('desc');
-        });
+    it('should show direction indicator', function() {
+      expect(sorter.getAttribute('direction')).to.equal(null);
+      sorter.direction = 'asc';
+      expect(sorter.getAttribute('direction')).to.equal('asc');
+      sorter.direction = 'desc';
+      expect(sorter.getAttribute('direction')).to.equal('desc');
+    });
 
-        it('should have aria-hidden for indicator', function() {
-          expect(indicators.getAttribute('aria-hidden')).to.equal('true');
-        });
+    it('should have aria-hidden for indicator', function() {
+      expect(indicators.getAttribute('aria-hidden')).to.equal('true');
+    });
 
-        describe('announcer', function() {
-          it('should reflect direction', function() {
-            expect(announcer.textContent).to.have.string('Unsorted');
-            expect(announcer.textContent).to.not.have.string('Sorted');
+    describe('announcer', function() {
+      it('should reflect direction', function() {
+        expect(announcer.textContent).to.have.string('Unsorted');
+        expect(announcer.textContent).to.not.have.string('Sorted');
 
-            sorter.direction = 'asc';
-            expect(announcer.textContent).to.have.string('Sorted');
-            expect(announcer.textContent).to.not.have.string('Unsorted');
-            expect(announcer.textContent).to.have.string('ascending');
-            expect(announcer.textContent).to.not.have.string('descending');
+        sorter.direction = 'asc';
+        expect(announcer.textContent).to.have.string('Sorted');
+        expect(announcer.textContent).to.not.have.string('Unsorted');
+        expect(announcer.textContent).to.have.string('ascending');
+        expect(announcer.textContent).to.not.have.string('descending');
 
-            sorter.direction = 'desc';
-            expect(announcer.textContent).to.have.string('Sorted');
-            expect(announcer.textContent).to.not.have.string('Unsorted');
-            expect(announcer.textContent).to.have.string('descending');
-            expect(announcer.textContent).to.not.have.string('ascending');
-          });
-
-          it('should reflect order', function() {
-            sorter.direction = 'asc';
-
-            expect(announcer.textContent).to.not.have.string('Order');
-
-            sorter._order = 0;
-            expect(announcer.textContent).to.have.string('Order 1');
-
-            sorter._order = 4;
-            expect(announcer.textContent).to.have.string('Order 5');
-          });
-
-          it('should announce direction change', function() {
-            var spy = sinon.spy();
-            sorter.addEventListener('iron-announce', spy);
-
-            sorter.direction = 'asc';
-
-            sorter.flushDebouncer('direction-announce');
-
-            expect(spy.callCount).to.eql(1);
-          });
-
-          it('should announce order change', function() {
-            var spy = sinon.spy();
-            sorter.addEventListener('iron-announce', spy);
-
-            sorter._order = 0;
-
-            sorter.flushDebouncer('direction-announce');
-
-            expect(spy.callCount).to.eql(1);
-          });
-
-          it('should debounce direction and order changes', function() {
-            var spy = sinon.spy();
-            sorter.addEventListener('iron-announce', spy);
-
-            sorter.direction = 'asc';
-            sorter._order = 0;
-
-            sorter.flushDebouncer('direction-announce');
-
-            expect(spy.callCount).to.eql(1);
-            expect(spy.args[0][0].detail.text).to.eql('Sorted ascending, Order 1.');
-          });
-        });
-
-        it('should prevent default on click', function() {
-          var clickEvent = new CustomEvent('click', {cancelable: true});
-
-          sorter.dispatchEvent(clickEvent);
-
-          expect(clickEvent.defaultPrevented).to.be.true;
-        });
+        sorter.direction = 'desc';
+        expect(announcer.textContent).to.have.string('Sorted');
+        expect(announcer.textContent).to.not.have.string('Unsorted');
+        expect(announcer.textContent).to.have.string('descending');
+        expect(announcer.textContent).to.not.have.string('ascending');
       });
 
-      describe('sorter in cell content', function() {
-        var cellContent, sorter, announcer;
+      it('should reflect order', function() {
+        sorter.direction = 'asc';
 
-        beforeEach(function() {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+        expect(announcer.textContent).to.not.have.string('Order');
 
-          cellContent = fixture('sorter-in-cell-content');
-          sorter = Polymer.dom(cellContent).querySelector('vaadin-grid-sorter');
-          announcer = Polymer.dom(sorter.root).querySelector('#announcer');
-        });
+        sorter._order = 0;
+        expect(announcer.textContent).to.have.string('Order 1');
 
-        it('should have aria-hidden state on announcer by default', function() {
-          expect(announcer.getAttribute('aria-hidden')).to.equal('true');
-        });
-
-        it('should not have aria-hidden state on announcer after cell content receives focus', function() {
-          cellContent.dispatchEvent(new CustomEvent('cell-focusin'));
-
-          expect(announcer.getAttribute('aria-hidden')).to.equal('false');
-        });
-
-        it('should have aria-hidden state on announcer after cell content looses focus', function(done) {
-          cellContent.dispatchEvent(new CustomEvent('cell-focusin'));
-          cellContent.dispatchEvent(new CustomEvent('cell-focusout'));
-
-          sorter.async(function() {
-            expect(announcer.getAttribute('aria-hidden')).to.equal('true');
-            done();
-          }, 1);
-        });
+        sorter._order = 4;
+        expect(announcer.textContent).to.have.string('Order 5');
       });
 
-      describe('grid', function() {
-        var grid, sorterFirst, sorterLast;
+      it('should announce direction change', function() {
+        var spy = sinon.spy();
+        sorter.addEventListener('iron-announce', spy);
 
-        beforeEach(function(done) {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+        sorter.direction = 'asc';
 
-          grid = fixture('grid');
-          flush(function() {
-            sorterFirst = getHeaderCellContent(grid, 0, 0).querySelector('vaadin-grid-sorter');
-            sorterLast = getHeaderCellContent(grid, 0, 1).querySelector('vaadin-grid-sorter');
+        sorter.flushDebouncer('direction-announce');
 
-            grid.items = [{
-              first: 'foo',
-              last: 'bar'
-            }, {
-              first: 'foo',
-              last: 'baz'
-            }, {
-              first: 'bar',
-              last: 'bar'
-            }];
-            animationFrameFlush(done);
-          });
-        });
+        expect(spy.callCount).to.eql(1);
+      });
 
-        it('should be clickable', function() {
-          var title = Polymer.dom(sorterFirst).querySelector('.title');
-          expect(window.getComputedStyle(title).cursor).to.equal('pointer');
-        });
+      it('should announce order change', function() {
+        var spy = sinon.spy();
+        sorter.addEventListener('iron-announce', spy);
 
-        it('should ignore sorter', function() {
-          sorterFirst.direction = '';
-          var sortOrders = grid._mapSorters();
-          expect(sortOrders).to.have.length(1);
-          expect(sortOrders[0].path).to.equal('last');
-          expect(sortOrders[0].direction).to.equal('desc');
-        });
+        sorter._order = 0;
 
-        it('should show order indicators', function() {
-          expect(sorterFirst._order).to.equal(1);
-          expect(sorterLast._order).to.equal(0);
-        });
+        sorter.flushDebouncer('direction-announce');
 
-        it('should not show order indicators for one sorter', function() {
-          sorterLast.direction = '';
-          expect(sorterFirst._order).to.equal(null);
-          expect(sorterLast._order).to.equal(null);
-        });
+        expect(spy.callCount).to.eql(1);
+      });
 
-        it('should not show order indicators', function() {
-          sorterFirst.direction = null;
-          sorterLast.direction = null;
-          expect(sorterFirst._order).to.equal(null);
-          expect(sorterLast._order).to.equal(null);
-        });
+      it('should debounce direction and order changes', function() {
+        var spy = sinon.spy();
+        sorter.addEventListener('iron-announce', spy);
 
-        // This test is relevant for IE11 only
-        var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
-        if (IE) {
-          it('should handle virtual focus', function() {
-            var spy = sinon.spy(grid, 'focus');
-            sorterFirst.$.content.dispatchEvent(new CustomEvent('focus'));
-            expect(spy.called).to.be.true;
-            expect(grid.$.scroller._virtualFocus).to.equal(grid.$.scroller.$.header);
-            expect(grid.$.scroller.interacting).to.be.false;
-          });
-        }
+        sorter.direction = 'asc';
+        sorter._order = 0;
 
-        describe('array data provider', function() {
+        sorter.flushDebouncer('direction-announce');
 
-          it('should sort automatically', function() {
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('foo');
+        expect(spy.callCount).to.eql(1);
+        expect(spy.args[0][0].detail.text).to.eql('Sorted ascending, Order 1.');
+      });
+    });
 
-            expect(getBodyCellContent(grid, 0, 1).innerText).to.equal('baz');
-            expect(getBodyCellContent(grid, 1, 1).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 2, 1).innerText).to.equal('bar');
-          });
+    it('should prevent default on click', function() {
+      var clickEvent = new CustomEvent('click', {cancelable: true});
 
-          it('should sort automatically on sort', function() {
-            sorterFirst.direction = null;
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('bar');
-          });
+      sorter.dispatchEvent(clickEvent);
 
-          it('should not sort the items if sorters is empty', function() {
-            sorterFirst.direction = null;
-            sorterLast.direction = null;
-            grid.items = buildDataSet(1000);
-            var bodyRows = getRows(grid.$.items);
-            var cells = getRowCells(bodyRows[0]);
-            expect(cells[0].item).to.equal(grid.items[0]);
-          });
+      expect(clickEvent.defaultPrevented).to.be.true;
+    });
+  });
 
-          it('should sort empty values', function() {
-            grid.items = [{
-              first: 'foo',
-              last: 'bar'
-            }, {
-              first: '',
-              last: ''
-            }, {
-              first: 'bar',
-              last: 'bar'
-            }];
+  describe('sorter in cell content', function() {
+    var cellContent, sorter, announcer;
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
-          });
+    beforeEach(function() {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-          it('should sort null values', function() {
-            grid.items = [{
-              first: 'foo',
-              last: 'bar'
-            }, {
-              first: null,
-              last: null
-            }, {
-              first: 'bar',
-              last: 'bar'
-            }];
+      cellContent = fixture('sorter-in-cell-content');
+      sorter = dom(cellContent).querySelector('vaadin-grid-sorter');
+      announcer = dom(sorter.root).querySelector('#announcer');
+    });
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
-          });
+    it('should have aria-hidden state on announcer by default', function() {
+      expect(announcer.getAttribute('aria-hidden')).to.equal('true');
+    });
 
-          it('should sort undefined values', function() {
-            grid.items = [{
-              first: 'foo',
-              last: 'bar'
-            }, {
-              first: undefined,
-              last: undefined
-            }, {
-              first: 'bar',
-              last: 'bar'
-            }];
+    it('should not have aria-hidden state on announcer after cell content receives focus', function() {
+      cellContent.dispatchEvent(new CustomEvent('cell-focusin'));
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
-          });
+      expect(announcer.getAttribute('aria-hidden')).to.equal('false');
+    });
 
-          it('should sort NaN values', function() {
-            grid.items = [{
-              first: 'foo',
-              last: 'bar'
-            }, {
-              first: NaN,
-              last: NaN
-            }, {
-              first: 'bar',
-              last: 'bar'
-            }];
+    it('should have aria-hidden state on announcer after cell content looses focus', function(done) {
+      cellContent.dispatchEvent(new CustomEvent('cell-focusin'));
+      cellContent.dispatchEvent(new CustomEvent('cell-focusout'));
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('NaN');
-          });
+      sorter.async(function() {
+        expect(announcer.getAttribute('aria-hidden')).to.equal('true');
+        done();
+      }, 1);
+    });
+  });
 
-          it('should sort numbers correctly', function() {
-            grid.items = [{
-              first: 1
-            }, {
-              first: 2
-            }, {
-              first: 11
-            }];
+  describe('grid', function() {
+    var grid, sorterFirst, sorterLast;
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('1');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('2');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('11');
-          });
+    beforeEach(function(done) {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-          it('should sort dates correctly', function() {
-            grid.items = [{
-              first: 1,
-              last: new Date(2000, 1, 2)
-            }, {
-              first: 2,
-              last: new Date(2000, 1, 3)
-            }, {
-              first: 3,
-              last: new Date(2000, 1, 1)
-            }];
+      grid = fixture('grid');
+      flush(function() {
+        sorterFirst = getHeaderCellContent(grid, 0, 0).querySelector('vaadin-grid-sorter');
+        sorterLast = getHeaderCellContent(grid, 0, 1).querySelector('vaadin-grid-sorter');
 
-            sorterFirst.direction = '';
-            sorterLast.direction = 'asc';
+        grid.items = [{
+          first: 'foo',
+          last: 'bar'
+        }, {
+          first: 'foo',
+          last: 'baz'
+        }, {
+          first: 'bar',
+          last: 'bar'
+        }];
+        animationFrameFlush(done);
+      });
+    });
 
-            expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('3');
-            expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('1');
-            expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('2');
-          });
+    it('should be clickable', function() {
+      var title = dom(sorterFirst).querySelector('.title');
+      expect(window.getComputedStyle(title).cursor).to.equal('pointer');
+    });
 
-        });
+    it('should ignore sorter', function() {
+      sorterFirst.direction = '';
+      var sortOrders = grid._mapSorters();
+      expect(sortOrders).to.have.length(1);
+      expect(sortOrders[0].path).to.equal('last');
+      expect(sortOrders[0].direction).to.equal('desc');
+    });
 
-        describe('data provider', function() {
+    it('should show order indicators', function() {
+      expect(sorterFirst._order).to.equal(1);
+      expect(sorterLast._order).to.equal(0);
+    });
 
-          beforeEach(function() {
-            grid.dataProvider = sinon.spy(grid.dataProvider);
-            grid.clearCache();
-          });
+    it('should not show order indicators for one sorter', function() {
+      sorterLast.direction = '';
+      expect(sorterFirst._order).to.equal(null);
+      expect(sorterLast._order).to.equal(null);
+    });
 
-          it('should request with default sorting', function() {
-            var lastCall = grid.dataProvider.lastCall;
-            var params = lastCall.args[0];
-            expect(params.sortOrders).to.eql([{
-              path: 'last',
-              direction: 'desc'
-            }, {
-              path: 'first',
-              direction: 'asc'
-            }]);
-          });
+    it('should not show order indicators', function() {
+      sorterFirst.direction = null;
+      sorterLast.direction = null;
+      expect(sorterFirst._order).to.equal(null);
+      expect(sorterLast._order).to.equal(null);
+    });
 
-          it('should request new data on sort', function() {
-            sorterFirst.direction = 'desc';
-            var lastCall = grid.dataProvider.lastCall;
-            var params = lastCall.args[0];
-            expect(params.sortOrders).to.eql([{
-              path: 'first',
-              direction: 'desc'
-            }, {
-              path: 'last',
-              direction: 'desc'
-            }]);
-          });
+    // This test is relevant for IE11 only
+    var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
+    if (IE) {
+      it('should handle virtual focus', function() {
+        var spy = sinon.spy(grid, 'focus');
+        sorterFirst.$.content.dispatchEvent(new CustomEvent('focus'));
+        expect(spy.called).to.be.true;
+        expect(grid.$.scroller._virtualFocus).to.equal(grid.$.scroller.$.header);
+        expect(grid.$.scroller.interacting).to.be.false;
+      });
+    }
 
-          it('should request new data on change in existing sorters', function() {
-            grid.dataProvider.reset();
-            sorterLast.direction = 'asc';
-            expect(grid.dataProvider.called).to.be.true;
-          });
+    describe('array data provider', function() {
 
-        });
+      it('should sort automatically', function() {
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('foo');
 
-        describe('single column sorting', function() {
-          beforeEach(function() {
-            grid.multiSort = false;
-            grid.dataProvider = sinon.spy(grid.dataProvider);
-          });
+        expect(getBodyCellContent(grid, 0, 1).innerText).to.equal('baz');
+        expect(getBodyCellContent(grid, 1, 1).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 2, 1).innerText).to.equal('bar');
+      });
 
-          it('should only using single sorter', function() {
-            grid.dataProvider.reset();
-            sorterFirst.direction = 'desc';
+      it('should sort automatically on sort', function() {
+        sorterFirst.direction = null;
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('bar');
+      });
 
-            expect(grid.dataProvider.args[1][0].sortOrders.length).to.eql(1);
-          });
+      it('should not sort the items if sorters is empty', function() {
+        sorterFirst.direction = null;
+        sorterLast.direction = null;
+        grid.items = buildDataSet(1000);
+        var bodyRows = getRows(grid.$.items);
+        var cells = getRowCells(bodyRows[0]);
+        expect(cells[0].item).to.equal(grid.items[0]);
+      });
 
-          it('should remove order from sorters', function() {
-            // initial order before multiSort was set
-            expect(sorterLast._order).to.eql(0);
-            expect(sorterFirst._order).to.eql(1);
+      it('should sort empty values', function() {
+        grid.items = [{
+          first: 'foo',
+          last: 'bar'
+        }, {
+          first: '',
+          last: ''
+        }, {
+          first: 'bar',
+          last: 'bar'
+        }];
 
-            sorterFirst.direction = 'desc';
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
+      });
 
-            expect(sorterFirst._order).to.be.null;
-            expect(sorterLast._order).to.be.null;
-          });
+      it('should sort null values', function() {
+        grid.items = [{
+          first: 'foo',
+          last: 'bar'
+        }, {
+          first: null,
+          last: null
+        }, {
+          first: 'bar',
+          last: 'bar'
+        }];
 
-          it('should remove direction from previous sorter', function() {
-            sorterFirst.direction = 'desc';
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
+      });
 
-            sorterLast.direction = 'desc';
+      it('should sort undefined values', function() {
+        grid.items = [{
+          first: 'foo',
+          last: 'bar'
+        }, {
+          first: undefined,
+          last: undefined
+        }, {
+          first: 'bar',
+          last: 'bar'
+        }];
 
-            expect(sorterFirst.direction).to.be.null;
-            expect(sorterLast.direction).to.eql('desc');
-          });
-        });
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('');
+      });
 
+      it('should sort NaN values', function() {
+        grid.items = [{
+          first: 'foo',
+          last: 'bar'
+        }, {
+          first: NaN,
+          last: NaN
+        }, {
+          first: 'bar',
+          last: 'bar'
+        }];
+
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('bar');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('foo');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('NaN');
+      });
+
+      it('should sort numbers correctly', function() {
+        grid.items = [{
+          first: 1
+        }, {
+          first: 2
+        }, {
+          first: 11
+        }];
+
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('1');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('2');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('11');
+      });
+
+      it('should sort dates correctly', function() {
+        grid.items = [{
+          first: 1,
+          last: new Date(2000, 1, 2)
+        }, {
+          first: 2,
+          last: new Date(2000, 1, 3)
+        }, {
+          first: 3,
+          last: new Date(2000, 1, 1)
+        }];
+
+        sorterFirst.direction = '';
+        sorterLast.direction = 'asc';
+
+        expect(getBodyCellContent(grid, 0, 0).innerText).to.equal('3');
+        expect(getBodyCellContent(grid, 1, 0).innerText).to.equal('1');
+        expect(getBodyCellContent(grid, 2, 0).innerText).to.equal('2');
       });
 
     });
-  </script>
+
+    describe('data provider', function() {
+
+      beforeEach(function() {
+        grid.dataProvider = sinon.spy(grid.dataProvider);
+        grid.clearCache();
+      });
+
+      it('should request with default sorting', function() {
+        var lastCall = grid.dataProvider.lastCall;
+        var params = lastCall.args[0];
+        expect(params.sortOrders).to.eql([{
+          path: 'last',
+          direction: 'desc'
+        }, {
+          path: 'first',
+          direction: 'asc'
+        }]);
+      });
+
+      it('should request new data on sort', function() {
+        sorterFirst.direction = 'desc';
+        var lastCall = grid.dataProvider.lastCall;
+        var params = lastCall.args[0];
+        expect(params.sortOrders).to.eql([{
+          path: 'first',
+          direction: 'desc'
+        }, {
+          path: 'last',
+          direction: 'desc'
+        }]);
+      });
+
+      it('should request new data on change in existing sorters', function() {
+        grid.dataProvider.reset();
+        sorterLast.direction = 'asc';
+        expect(grid.dataProvider.called).to.be.true;
+      });
+
+    });
+
+    describe('single column sorting', function() {
+      beforeEach(function() {
+        grid.multiSort = false;
+        grid.dataProvider = sinon.spy(grid.dataProvider);
+      });
+
+      it('should only using single sorter', function() {
+        grid.dataProvider.reset();
+        sorterFirst.direction = 'desc';
+
+        expect(grid.dataProvider.args[1][0].sortOrders.length).to.eql(1);
+      });
+
+      it('should remove order from sorters', function() {
+        // initial order before multiSort was set
+        expect(sorterLast._order).to.eql(0);
+        expect(sorterFirst._order).to.eql(1);
+
+        sorterFirst.direction = 'desc';
+
+        expect(sorterFirst._order).to.be.null;
+        expect(sorterLast._order).to.be.null;
+      });
+
+      it('should remove direction from previous sorter', function() {
+        sorterFirst.direction = 'desc';
+
+        sorterLast.direction = 'desc';
+
+        expect(sorterFirst.direction).to.be.null;
+        expect(sorterLast.direction).to.eql('desc');
+      });
+    });
+
+  });
+
+});
+</script>
 
 </body>
 

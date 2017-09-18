@@ -10,8 +10,8 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
@@ -39,113 +39,116 @@
   </test-fixture>
 
 
-  <script>
-    describe('Scroll to index', function() {
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import { flush, dom } from '../../polymer/lib/legacy/polymer.dom.js';
+describe('Scroll to index', function() {
 
-      ['small', 'large'].forEach(function(scale) {
+  ['small', 'large'].forEach(function(scale) {
 
-        describe('Scroll: ' + scale, function() {
-          var scroller;
+    describe('Scroll: ' + scale, function() {
+      var scroller;
 
-          beforeEach(function(done) {
-            // The before each block times out in CI with Firefox on Polymer 2
-            this.timeout(30000);
+      beforeEach(function(done) {
+        // The before each block times out in CI with Firefox on Polymer 2
+        this.timeout(30000);
 
-            var grid = fixture(scale);
-            grid.dataProvider = infiniteDataProvider;
-            scroller = grid.$.scroller;
+        var grid = fixture(scale);
+        grid.dataProvider = infiniteDataProvider;
+        scroller = grid.$.scroller;
 
-            Polymer.dom.flush();
-            animationFrameFlush(done);
-          });
-
-          it('should scroll to scaled index', function(done) {
-            [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 77, 88, 100].forEach(function(percentage) {
-
-              var index = Math.ceil((scroller.size - 1) * percentage / 100);
-              scroller.scrollToScaledIndex(index);
-
-              if (percentage === 100) {
-                expect(scroller._vidxOffset + scroller.lastVisibleIndex).to.equal(index);
-
-                var table = scroller.$.table;
-                listenOnce(table, 'scroll', function() {
-                  expect(table.scrollTop).to.equal(table.scrollHeight - table.offsetHeight);
-                  done();
-                });
-
-              } else {
-                expect(scroller._vidxOffset + scroller.firstVisibleIndex).to.equal(index);
-              }
-
-            });
-          });
-
-          it('should scroll to last index', function() {
-            scroller.scrollToScaledIndex(scroller.size * 2);
-            expect(scroller._vidxOffset + scroller.lastVisibleIndex).to.equal(scroller.size - 1);
-          });
-
-          it('should scroll to first index', function() {
-            scroller.scrollToScaledIndex(-100);
-            expect(scroller._vidxOffset + scroller.firstVisibleIndex).to.equal(0);
-          });
-
-        });
-
+        flush();
+        animationFrameFlush(done);
       });
 
-      describe('other', function() {
-        var grid, scroller;
+      it('should scroll to scaled index', function(done) {
+        [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 77, 88, 100].forEach(function(percentage) {
 
-        beforeEach(function(done) {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+          var index = Math.ceil((scroller.size - 1) * percentage / 100);
+          scroller.scrollToScaledIndex(index);
 
-          grid = fixture('large');
-          grid.dataProvider = infiniteDataProvider;
-          scroller = grid.$.scroller;
-          animationFrameFlush(function() {
-            done();
-          });
-        });
+          if (percentage === 100) {
+            expect(scroller._vidxOffset + scroller.lastVisibleIndex).to.equal(index);
 
-        it('should clear scheduled scroll to index after init', function(done) {
-          scroller.$.table.addEventListener('scroll', function() {
-            scroller.debounce('table-scrolling', function() {
-              animationFrameFlush(function() {
-                expect(scroller._pendingScrollToScaledIndex).not.to.be.ok;
-                done();
-              });
-            }, 100);
-          });
+            var table = scroller.$.table;
+            listenOnce(table, 'scroll', function() {
+              expect(table.scrollTop).to.equal(table.scrollHeight - table.offsetHeight);
+              done();
+            });
 
-          scroller.scrollToScaledIndex(10);
-        });
-
-        it('should have correct indexes after scrolling', function(done) {
-          var listener = function() {
-            scroller.flushDebouncer('vaadin-grid-scrolling');
-            // Check that the rows are in order
-            var rows = Polymer.dom(grid.$.items).querySelectorAll('.vaadin-grid-row');
-            for (var i = 1; i < rows.length; i++) {
-              expect(rows[i].index).to.equal(rows[i - 1].index + 1);
-            }
-            done();
-          };
-
-          scroller.async(function() {
-            scroller.scrollToScaledIndex(100);
-            listenOnce(scroller.$.table, 'scroll', listener);
-            scroller.$.table.scrollTop -= 1;
-          }, 100);
+          } else {
+            expect(scroller._vidxOffset + scroller.firstVisibleIndex).to.equal(index);
+          }
 
         });
+      });
 
+      it('should scroll to last index', function() {
+        scroller.scrollToScaledIndex(scroller.size * 2);
+        expect(scroller._vidxOffset + scroller.lastVisibleIndex).to.equal(scroller.size - 1);
+      });
+
+      it('should scroll to first index', function() {
+        scroller.scrollToScaledIndex(-100);
+        expect(scroller._vidxOffset + scroller.firstVisibleIndex).to.equal(0);
       });
 
     });
-  </script>
+
+  });
+
+  describe('other', function() {
+    var grid, scroller;
+
+    beforeEach(function(done) {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
+
+      grid = fixture('large');
+      grid.dataProvider = infiniteDataProvider;
+      scroller = grid.$.scroller;
+      animationFrameFlush(function() {
+        done();
+      });
+    });
+
+    it('should clear scheduled scroll to index after init', function(done) {
+      scroller.$.table.addEventListener('scroll', function() {
+        scroller.debounce('table-scrolling', function() {
+          animationFrameFlush(function() {
+            expect(scroller._pendingScrollToScaledIndex).not.to.be.ok;
+            done();
+          });
+        }, 100);
+      });
+
+      scroller.scrollToScaledIndex(10);
+    });
+
+    it('should have correct indexes after scrolling', function(done) {
+      var listener = function() {
+        scroller.flushDebouncer('vaadin-grid-scrolling');
+        // Check that the rows are in order
+        var rows = dom(grid.$.items).querySelectorAll('.vaadin-grid-row');
+        for (var i = 1; i < rows.length; i++) {
+          expect(rows[i].index).to.equal(rows[i - 1].index + 1);
+        }
+        done();
+      };
+
+      scroller.async(function() {
+        scroller.scrollToScaledIndex(100);
+        listenOnce(scroller.$.table, 'scroll', listener);
+        scroller.$.table.scrollTop -= 1;
+      }, 100);
+
+    });
+
+  });
+
+});
+</script>
 
 </body>
 

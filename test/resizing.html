@@ -10,8 +10,8 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
@@ -36,21 +36,22 @@
       </vaadin-grid>
 
     </template>
-    <script>
-      HTMLImports.whenReady(function() {
-        Polymer({
-          is: 'test-component',
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'test-component',
 
-          properties: {
-            dataProvider: {
-              value: function() {
-                return infiniteDataProvider;
-              }
-            }
-          }
-        });
-      });
-    </script>
+  properties: {
+    dataProvider: {
+      value: function() {
+        return infiniteDataProvider;
+      }
+    }
+  }
+});
+</script>
   </dom-module>
 
   <test-fixture id="default">
@@ -59,85 +60,88 @@
     </template>
   </test-fixture>
 
-  <script>
-    describe('resizing', function() {
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import { flush } from '../../polymer/lib/legacy/polymer.dom.js';
+describe('resizing', function() {
 
-      describe('notifyResize', function() {
-        var grid, scroller;
+  describe('notifyResize', function() {
+    var grid, scroller;
 
-        beforeEach(function(done) {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+    beforeEach(function(done) {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-          grid = fixture('default').$.grid;
-          grid.dataProvider = infiniteDataProvider;
-          scroller = grid.$.scroller;
-          Polymer.dom.flush();
-          listenOnce(scroller, 'animationend', function() {
-            scroller.flushDebouncer('vaadin-grid-resizing');
-            done();
-          });
-        });
-
-        it('should align rows correctly', function() {
-          var rows = getRows(grid.$.items);
-          expect(rows[0].getBoundingClientRect().bottom).to.be.closeTo(rows[1].getBoundingClientRect().top, 1);
-        });
-
-        it('should update header height', function() {
-          var _bottom = grid.$.header.getBoundingClientRect().bottom;
-
-          grid.style.fontSize = '40px';
-          grid.notifyResize();
-
-          var _newBottom = grid.$.header.getBoundingClientRect().bottom;
-          expect(_newBottom).to.be.above(_bottom);
-          var firstBodyRowRect = getRows(grid.$.items)[0].getBoundingClientRect();
-          expect(firstBodyRowRect.top).to.be.closeTo(_newBottom, 1);
-        });
-
-        it('should update footer height', function() {
-          grid.style.fontSize = '40px';
-          grid.notifyResize();
-          scrollToEnd(grid);
-
-          var bodyRows = getRows(grid.$.items);
-          expect(bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom)
-            .to.be.closeTo(grid.$.footer.getBoundingClientRect().top, 1);
-        });
-
-        it('should update details row height', function() {
-          grid.expandItem(grid._cache[0][0]);
-          var bodyRows = getRows(grid.$.items);
-          var cells = getRowCells(bodyRows[0]);
-          var detailsCell = cells.pop();
-          var _height = detailsCell.getBoundingClientRect().height;
-
-          grid.style.fontSize = '40px';
-          grid.notifyResize();
-          scroller.flushDebouncer('vaadin-grid-resizing');
-
-          expect(detailsCell.getBoundingClientRect().height).to.be.above(_height);
-          expect(detailsCell.getBoundingClientRect().bottom)
-            .to.be.closeTo(bodyRows[1].getBoundingClientRect().top, 1);
-        });
-
-        it('should align height with number of rows', function(done) {
-          grid.style.height = 'auto';
-          animationFrameFlush(function() {
-            var headerHeight = grid.$.header.clientHeight;
-            var bodyHeight = grid.$.items.clientHeight;
-            var footerHeight = grid.$.footer.clientHeight;
-            expect(grid.clientHeight).to.equal(headerHeight + bodyHeight + footerHeight);
-            done();
-          });
-        });
-
+      grid = fixture('default').$.grid;
+      grid.dataProvider = infiniteDataProvider;
+      scroller = grid.$.scroller;
+      flush();
+      listenOnce(scroller, 'animationend', function() {
+        scroller.flushDebouncer('vaadin-grid-resizing');
+        done();
       });
-
-
     });
-  </script>
+
+    it('should align rows correctly', function() {
+      var rows = getRows(grid.$.items);
+      expect(rows[0].getBoundingClientRect().bottom).to.be.closeTo(rows[1].getBoundingClientRect().top, 1);
+    });
+
+    it('should update header height', function() {
+      var _bottom = grid.$.header.getBoundingClientRect().bottom;
+
+      grid.style.fontSize = '40px';
+      grid.notifyResize();
+
+      var _newBottom = grid.$.header.getBoundingClientRect().bottom;
+      expect(_newBottom).to.be.above(_bottom);
+      var firstBodyRowRect = getRows(grid.$.items)[0].getBoundingClientRect();
+      expect(firstBodyRowRect.top).to.be.closeTo(_newBottom, 1);
+    });
+
+    it('should update footer height', function() {
+      grid.style.fontSize = '40px';
+      grid.notifyResize();
+      scrollToEnd(grid);
+
+      var bodyRows = getRows(grid.$.items);
+      expect(bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom)
+        .to.be.closeTo(grid.$.footer.getBoundingClientRect().top, 1);
+    });
+
+    it('should update details row height', function() {
+      grid.expandItem(grid._cache[0][0]);
+      var bodyRows = getRows(grid.$.items);
+      var cells = getRowCells(bodyRows[0]);
+      var detailsCell = cells.pop();
+      var _height = detailsCell.getBoundingClientRect().height;
+
+      grid.style.fontSize = '40px';
+      grid.notifyResize();
+      scroller.flushDebouncer('vaadin-grid-resizing');
+
+      expect(detailsCell.getBoundingClientRect().height).to.be.above(_height);
+      expect(detailsCell.getBoundingClientRect().bottom)
+        .to.be.closeTo(bodyRows[1].getBoundingClientRect().top, 1);
+    });
+
+    it('should align height with number of rows', function(done) {
+      grid.style.height = 'auto';
+      animationFrameFlush(function() {
+        var headerHeight = grid.$.header.clientHeight;
+        var bodyHeight = grid.$.items.clientHeight;
+        var footerHeight = grid.$.footer.clientHeight;
+        expect(grid.clientHeight).to.equal(headerHeight + bodyHeight + footerHeight);
+        done();
+      });
+    });
+
+  });
+
+
+});
+</script>
 
 </body>
 

@@ -10,9 +10,9 @@
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
-  <link rel="import" href="../../paper-slider/paper-slider.html">
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="../vaadin-grid.js"></script>
+  <script type="module" src="../../paper-slider/paper-slider.js"></script>
 
 </head>
 
@@ -49,22 +49,24 @@
         </vaadin-grid-column>
       </vaadin-grid>
     </template>
-    <script>
-      document.addEventListener('WebComponentsReady', function() {
-        Polymer({
-          is: 'test-component',
+    <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../../paper-slider/paper-slider.js';
+import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+Polymer({
+  is: 'test-component',
 
-          properties: {
-            dataProvider: {
-              value: function() {
-                return infiniteDataProvider;
-              }
-            }
-          }
+  properties: {
+    dataProvider: {
+      value: function() {
+        return infiniteDataProvider;
+      }
+    }
+  }
 
-        });
-      });
-    </script>
+});
+</script>
   </dom-module>
 
   <test-fixture id="default">
@@ -93,108 +95,113 @@
 
 
 
-  <script>
-  document.addEventListener('WebComponentsReady', function() {
-    describe('style scope', function() {
+  <script type="module">
+import './helpers.js';
+import '../vaadin-grid.js';
+import '../../paper-slider/paper-slider.js';
+import { Element } from '../../polymer/polymer-element.js';
+import { dom, flush } from '../../polymer/lib/legacy/polymer.dom.js';
+import { Base } from '../../polymer/polymer.js';
+import { Settings } from '../../polymer/lib/utils/settings.js';
+describe('style scope', function() {
 
-      describe('component', function() {
+  describe('component', function() {
 
-        var component;
-        var wrapper;
-        var content;
-        var slider;
+    var component;
+    var wrapper;
+    var content;
+    var slider;
 
-        beforeEach(function(done) {
-          // The before each block times out in CI with Firefox on Polymer 2
-          this.timeout(30000);
+    beforeEach(function(done) {
+      // The before each block times out in CI with Firefox on Polymer 2
+      this.timeout(30000);
 
-          component = fixture('default');
+      component = fixture('default');
 
-          if (Polymer.Element) {
-            flushColumns(component.$.grid);
-          }
+      if (Element) {
+        flushColumns(component.$.grid);
+      }
 
-          wrapper = Polymer.dom(component.$.grid).querySelector('vaadin-grid-cell-content');
-          content = Polymer.dom(component.$.grid).querySelector('.my-content');
+      wrapper = dom(component.$.grid).querySelector('vaadin-grid-cell-content');
+      content = dom(component.$.grid).querySelector('.my-content');
 
-          slider = component.$$('paper-slider');
-          Polymer.Base.async(done, 1);
-        });
-
-        it('should target cell content', function() {
-          expect(window.getComputedStyle(wrapper).color).to.equal('rgb(0, 255, 0)');
-        });
-
-        it('should target cell wrapper', function() {
-          expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
-        });
-
-        it('should polyfill style mixins to child web-components', function() {
-          expect(window.getComputedStyle(slider.$$('paper-input')).color).to.equal('rgb(0, 255, 0)');
-        });
-
-        it('should not have vaadin-grid-table scope', function() {
-          expect(content.classList.contains('vaadin-grid-table')).to.be.false;
-        });
-
-      });
-
-      describe('dom-bind', function() {
-        var grid;
-
-        beforeEach(function() {
-          grid = document.querySelector('#dom-bind-grid');
-        });
-
-        if (!Polymer.Settings.useShadow) {
-          // Only test non-shadow
-          var scroller;
-          var table;
-          var body;
-
-          beforeEach(function() {
-            scroller = grid.$.scroller;
-            table = scroller.$.table;
-            body = grid.$.items;
-            grid.dataProvider = infiniteDataProvider;
-            Polymer.dom.flush();
-          });
-
-          it('should not lose scope on reorder', function(done) {
-            var row = body.children[0];
-
-            var cell = row.querySelector('vaadin-grid-table-cell');
-            var content = getCellContent(cell).querySelector('.my-content');
-
-            expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
-
-            table.addEventListener('scroll', function() {
-              scroller.flushDebouncer('vaadin-grid-scrolling');
-              // it takes a microtask before the cell contents are reattached.
-              scroller.async(function() {
-                expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
-                done();
-              });
-            });
-
-            // Deliberately mess the row order...
-            body.appendChild(row);
-            // ...and schedule a reorder
-            table.scrollTop += 1;
-
-          });
-
-          it('should not have vaadin-grid-table scope', function() {
-            var row = body.children[25];
-            var cell = row.querySelector('vaadin-grid-table-cell');
-            var content = getCellContent(cell).querySelector('.my-content');
-            expect(content.classList.contains('vaadin-grid-table')).to.be.false;
-          });
-        }
-      });
+      slider = component.$$('paper-slider');
+      Base.async(done, 1);
     });
+
+    it('should target cell content', function() {
+      expect(window.getComputedStyle(wrapper).color).to.equal('rgb(0, 255, 0)');
+    });
+
+    it('should target cell wrapper', function() {
+      expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
+    });
+
+    it('should polyfill style mixins to child web-components', function() {
+      expect(window.getComputedStyle(slider.$$('paper-input')).color).to.equal('rgb(0, 255, 0)');
+    });
+
+    it('should not have vaadin-grid-table scope', function() {
+      expect(content.classList.contains('vaadin-grid-table')).to.be.false;
+    });
+
   });
-  </script>
+
+  describe('dom-bind', function() {
+    var grid;
+
+    beforeEach(function() {
+      grid = document.querySelector('#dom-bind-grid');
+    });
+
+    if (!Settings.useShadow) {
+      // Only test non-shadow
+      var scroller;
+      var table;
+      var body;
+
+      beforeEach(function() {
+        scroller = grid.$.scroller;
+        table = scroller.$.table;
+        body = grid.$.items;
+        grid.dataProvider = infiniteDataProvider;
+        flush();
+      });
+
+      it('should not lose scope on reorder', function(done) {
+        var row = body.children[0];
+
+        var cell = row.querySelector('vaadin-grid-table-cell');
+        var content = getCellContent(cell).querySelector('.my-content');
+
+        expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
+
+        table.addEventListener('scroll', function() {
+          scroller.flushDebouncer('vaadin-grid-scrolling');
+          // it takes a microtask before the cell contents are reattached.
+          scroller.async(function() {
+            expect(window.getComputedStyle(content).color).to.equal('rgb(255, 0, 0)');
+            done();
+          });
+        });
+
+        // Deliberately mess the row order...
+        body.appendChild(row);
+        // ...and schedule a reorder
+        table.scrollTop += 1;
+
+      });
+
+      it('should not have vaadin-grid-table scope', function() {
+        var row = body.children[25];
+        var cell = row.querySelector('vaadin-grid-table-cell');
+        var content = getCellContent(cell).querySelector('.my-content');
+        expect(content.classList.contains('vaadin-grid-table')).to.be.false;
+      });
+    }
+  });
+});
+</script>
 
 </body>
 
