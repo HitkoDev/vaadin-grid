@@ -1,7 +1,7 @@
-import '../polymer/polymer.js';
+import '../@polymer/polymer.js';
 import { IronScrollTargetBehavior } from '../iron-scroll-target-behavior/iron-scroll-target-behavior.js';
-import { addDebouncer, flush } from '../polymer/lib/legacy/polymer.dom.js';
-import { Templatizer } from '../polymer/lib/legacy/templatizer-behavior.js';
+import { addDebouncer, flush } from '../@polymer/lib/legacy/polymer.dom.js';
+import { Templatizer } from '../@polymer/lib/legacy/templatizer-behavior.js';
 window.vaadin = window.vaadin || {};
 vaadin.elements = vaadin.elements || {};
 vaadin.elements.grid = vaadin.elements.grid || {};

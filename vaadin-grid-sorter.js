@@ -1,7 +1,7 @@
-import '../polymer/polymer.js';
+import '../@polymer/polymer.js';
 import './vaadin-grid-cell-click-behavior.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
 const $_documentContainer = document.createElement('div');
 $_documentContainer.setAttribute('style', 'display: none;');
 

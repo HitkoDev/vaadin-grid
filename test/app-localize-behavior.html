@@ -1,28 +1,25 @@
 <!doctype html>
-
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>iron-list test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-
   <script type="module" src="./helpers.js"></script>
   <script type="module" src="../vaadin-grid.js"></script>
   <script type="module" src="../../app-localize-behavior/app-localize-behavior.js"></script>
 </head>
-<body>
 
+<body>
   <dom-module id="x-grid">
     <template>
       <style>
-        :host {
+         :host {
           display: block;
         }
       </style>
-
       <vaadin-grid id="grid" items="[1]">
         <vaadin-grid-column>
           <template class="header">[[localize('header')]]</template>
@@ -31,60 +28,24 @@
       </vaadin-grid>
     </template>
     <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import { AppLocalizeBehavior } from '../../app-localize-behavior/app-localize-behavior.js';
-import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'x-grid',
-
-  behaviors: [AppLocalizeBehavior],
-
-  properties: {
-    language: {
-      value: 'en'
-    }
-  },
-
-  attached: function() {
-    this.loadResources('locales.json');
-  }
-});
-</script>
+      import './helpers.js'; import '../vaadin-grid.js'; import { AppLocalizeBehavior } from '../../app-localize-behavior/app-localize-behavior.js';
+      import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'x-grid', behaviors: [AppLocalizeBehavior],
+      properties: { language: { value: 'en' } }, attached: function() { this.loadResources('locales.json'); } });
+    </script>
   </dom-module>
-
   <test-fixture id="grid">
     <template>
       <x-grid></x-grid>
     </template>
   </test-fixture>
-
   <script type="module">
-import './helpers.js';
-import '../vaadin-grid.js';
-import '../../app-localize-behavior/app-localize-behavior.js';
-
-describe('app-localize-behavior', function() {
-  var container, column, grid;
-
-  beforeEach(function(done) {
-    container = fixture('grid');
-    grid = container.$.grid;
-    container.addEventListener('app-localize-resources-loaded', function() {
-      done();
-    });
-  });
-
-  // Known error (missing Promise polyfill in webcomponentsjs lite v0)
-  var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
-  if (!IE) {
-    it('should localize', function() {
-      expect(getHeaderCellContent(grid, 0, 0).innerText).to.equal('header');
-    });
-  }
-
-});
-</script>
-
+    import './helpers.js'; import '../vaadin-grid.js'; import '../../app-localize-behavior/app-localize-behavior.js'; describe('app-localize-behavior',
+    function() { var container, column, grid; beforeEach(function(done) { container = fixture('grid'); grid = container.$.grid;
+    container.addEventListener('app-localize-resources-loaded', function() { done(); }); }); // Known error (missing Promise
+    polyfill in webcomponentsjs lite v0) var IE = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
+    if (!IE) { it('should localize', function() { expect(getHeaderCellContent(grid, 0, 0).innerText).to.equal('header');
+    }); } });
+  </script>
 </body>
+
 </html>

@@ -42,8 +42,8 @@
   <script type="module">
 import './helpers.js';
 import '../vaadin-grid.js';
-import { flush as flush$0 } from '../../polymer/lib/legacy/polymer.dom.js';
-import { updateStyles } from '../../polymer/lib/mixins/element-mixin.js';
+import { flush as flush$0 } from '../../@polymer/lib/legacy/polymer.dom.js';
+import { updateStyles } from '../../@polymer/lib/mixins/element-mixin.js';
 describe('selectors', function() {
   var grid;
   var headerRowCells;
@@ -152,7 +152,7 @@ describe('selectors', function() {
     expect(borderRight).to.equal('none');
   });
 
-  // Disabled since useNativeCSSProperties still has this issue with mixins https://github.com/Polymer/polymer/issues/3700
+  // Disabled since useNativeCSSProperties still has this issue with mixins https://github.com/@polymer/polymer/issues/3700
   // it('should override last column cells right border', function() {
   //   addStyle('--vaadin-grid-body-cell', '{border-right: 1px solid #fff !important; }');
   //

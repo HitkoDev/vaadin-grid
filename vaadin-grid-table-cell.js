@@ -1,9 +1,9 @@
-import '../polymer/polymer.js';
+import '../@polymer/polymer.js';
 import './vaadin-grid-cell-click-behavior.js';
-import { Settings } from '../polymer/lib/utils/settings.js';
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
-import { Element } from '../polymer/polymer-element.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
+import { Settings } from '../@polymer/lib/utils/settings.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../@polymer/polymer-element.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
 
 /**
  * @polymerBehavior vaadinGridTableCellBehavior

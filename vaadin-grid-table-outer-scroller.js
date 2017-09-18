@@ -1,5 +1,5 @@
-import '../polymer/polymer.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
+import '../@polymer/polymer.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
 Polymer({
   _template: `
     <style>

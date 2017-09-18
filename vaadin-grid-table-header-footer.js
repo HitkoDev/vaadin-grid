@@ -1,6 +1,6 @@
 import './vaadin-grid-focusable-cell-container-behavior.js';
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
 
 /**
  * @polymerBehavior vaadinGridTableRowContainerBehavior

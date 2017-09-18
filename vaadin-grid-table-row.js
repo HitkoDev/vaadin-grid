@@ -1,7 +1,7 @@
 import './vaadin-grid-table-cell.js';
-import { Settings } from '../polymer/lib/utils/settings.js';
-import { dom, flush as flush$0 } from '../polymer/lib/legacy/polymer.dom.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
+import { Settings } from '../@polymer/lib/utils/settings.js';
+import { dom, flush as flush$0 } from '../@polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
 
 /**
  * @polymerBehavior vaadinGridTableRowBehavior
@@ -167,7 +167,7 @@ var vaadinGridTableRowBehavior = {
         // Need to disable caching in Polymer 2 <dom-repeat> generated columns since
         // the current implementation reuses template instances for different items.
         //
-        // Once https://github.com/Polymer/polymer/pull/4363 is released, 'restamp'
+        // Once https://github.com/@polymer/polymer/pull/4363 is released, 'restamp'
         // property can be used to utilize caching in <dom-repeat> generated columns also.
         var disableCache = Array.prototype.some.call(this.target.querySelectorAll('dom-repeat'), function(domRepeat) {
           return !domRepeat.restamp;

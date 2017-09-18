@@ -1,7 +1,7 @@
-import '../polymer/polymer.js';
+import '../@polymer/polymer.js';
 import './vaadin-grid-column.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
 Polymer({
   is: 'vaadin-grid-column-group',
 

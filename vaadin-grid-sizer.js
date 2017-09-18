@@ -1,5 +1,5 @@
 import './vaadin-grid-table-cell.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
 Polymer({
   _template: `
     <style>

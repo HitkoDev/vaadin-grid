@@ -36,7 +36,7 @@
     <script type="module">
 import './helpers.js';
 import '../vaadin-grid.js';
-import { Polymer } from '../../polymer/lib/legacy/polymer-fn.js';
+import { Polymer } from '../../@polymer/lib/legacy/polymer-fn.js';
 Polymer({
   is: 'x-grid',
 
@@ -68,9 +68,9 @@ Polymer({
   <script type="module">
 import './helpers.js';
 import '../vaadin-grid.js';
-import { Base } from '../../polymer/polymer.js';
-import { flush } from '../../polymer/lib/legacy/polymer.dom.js';
-import { Settings } from '../../polymer/lib/utils/settings.js';
+import { Base } from '../../@polymer/polymer.js';
+import { flush } from '../../@polymer/lib/legacy/polymer.dom.js';
+import { Settings } from '../../@polymer/lib/utils/settings.js';
 function simulateScrollToStart(grid, done) {
   // make sure not over scroll more than the delta threshold limit of 10k.
   var table = grid.$.scroller.$.table;

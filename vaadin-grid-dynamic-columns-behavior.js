@@ -1,6 +1,6 @@
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
-import { Settings } from '../polymer/lib/utils/settings.js';
-import { Element } from '../polymer/polymer-element.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
+import { Settings } from '../@polymer/lib/utils/settings.js';
+import { Element } from '../@polymer/polymer-element.js';
 window.vaadin = window.vaadin || {};
 vaadin.elements = vaadin.elements || {};
 vaadin.elements.grid = vaadin.elements.grid || {};

@@ -1,4 +1,4 @@
-import '../polymer/polymer.js';
+import '../@polymer/polymer.js';
 import '../iron-resizable-behavior/iron-resizable-behavior.js';
 import './vaadin-grid-active-item-behavior.js';
 import './vaadin-grid-table-scroll-behavior.js';
@@ -14,10 +14,10 @@ import './vaadin-grid-selection-behavior.js';
 import './vaadin-grid-keyboard-navigation-behavior.js';
 import './vaadin-grid-column-reordering-behavior.js';
 import './iron-list-behavior.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-import { Templatizer } from '../polymer/lib/legacy/templatizer-behavior.js';
-import { afterNextRender } from '../polymer/lib/utils/render-status.js';
-import { flush, dom } from '../polymer/lib/legacy/polymer.dom.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { Templatizer } from '../@polymer/lib/legacy/templatizer-behavior.js';
+import { afterNextRender } from '../@polymer/lib/utils/render-status.js';
+import { flush, dom } from '../@polymer/lib/legacy/polymer.dom.js';
 const $_documentContainer = document.createElement('div');
 $_documentContainer.setAttribute('style', 'display: none;');
 

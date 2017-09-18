@@ -1,4 +1,4 @@
-import { Base } from '../polymer/polymer.js';
+import { Base } from '../@polymer/polymer.js';
 window.vaadin = window.vaadin || {};
 vaadin.elements = vaadin.elements || {};
 vaadin.elements.grid = vaadin.elements.grid || {};

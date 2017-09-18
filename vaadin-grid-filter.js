@@ -1,6 +1,6 @@
-import '../polymer/polymer.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-import { dom } from '../polymer/lib/legacy/polymer.dom.js';
+import '../@polymer/polymer.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { dom } from '../@polymer/lib/legacy/polymer.dom.js';
 Polymer({
   _template: `
     <style>

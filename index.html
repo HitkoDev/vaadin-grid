@@ -5,10 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>vaadin-grid</title>
-
   <script src="../elements-demo-resources/ga.js"></script>
   <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-  <script type="module" src="../polymer/polymer.js"></script>
+  <script type="module" src="../@polymer/polymer.js"></script>
   <script type="module" src="../iron-component-page/iron-component-page.js"></script>
   <script type="module" src="./vaadin-grid.js"></script>
   <script type="module" src="./vaadin-grid-selection-column.js"></script>
@@ -23,6 +22,7 @@
       snatched from GitHub, use to style the <kbd> elements in keyboard navigation
       documentation in vaadin-grid.html.
      */
+
     kbd {
       display: inline-block;
       padding: 3px 5px;
@@ -37,55 +37,21 @@
       box-shadow: inset 0 -1px 0 #bbb;
     }
   </style>
-
   <vaadin-grid-docs></vaadin-grid-docs>
   <dom-module id="vaadin-grid-docs">
     <template>
       <iron-component-page id="docs" src="index.html" on-doc-elements-changed="_filterElements" on-doc-behaviors-changed="_filterBehaviors"></iron-component-page>
     </template>
     <script type="module">
-import '../polymer/polymer.js';
-import '../iron-component-page/iron-component-page.js';
-import './vaadin-grid.js';
-import './vaadin-grid-selection-column.js';
-import './vaadin-grid-sorter.js';
-import './vaadin-grid-filter.js';
-import './vaadin-grid-column-group.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-Polymer({
-  is: 'vaadin-grid-docs',
-
-  _filterBehaviors: function(e) {
-    if (this._modifyingBehaviors) {
-      return;
-    }
-
-    this._modifyingBehaviors = true;
-
-    this.$.docs._setDocBehaviors(this.$.docs.docBehaviors.filter(function(beh, index) {
-      // blacklist internal APIs
-      return !/Polymer|iron|Iron|Table|FocusableCellContainer/.test(beh.is);
-    }));
-
-    this._modifyingBehaviors = false;
-  },
-
-  _filterElements: function(e) {
-    if (this._modifyingElements) {
-      return;
-    }
-
-    this._modifyingElements = true;
-
-    this.$.docs._setDocElements(this.$.docs.docElements.filter(function(el, index) {
-      // whitelist public elements
-      return /vaadin-grid$|column|filter|sorter/.test(el.is);
-    }));
-
-    this._modifyingElements = false;
-  }
-});
-</script>
+      import '../@polymer/polymer.js'; import '../iron-component-page/iron-component-page.js'; import './vaadin-grid.js'; import
+      './vaadin-grid-selection-column.js'; import './vaadin-grid-sorter.js'; import './vaadin-grid-filter.js'; import './vaadin-grid-column-group.js';
+      import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js'; Polymer({ is: 'vaadin-grid-docs', _filterBehaviors:
+      function(e) { if (this._modifyingBehaviors) { return; } this._modifyingBehaviors = true; this.$.docs._setDocBehaviors(this.$.docs.docBehaviors.filter(function(beh,
+      index) { // blacklist internal APIs return !/Polymer|iron|Iron|Table|FocusableCellContainer/.test(beh.is); })); this._modifyingBehaviors
+      = false; }, _filterElements: function(e) { if (this._modifyingElements) { return; } this._modifyingElements = true;
+      this.$.docs._setDocElements(this.$.docs.docElements.filter(function(el, index) { // whitelist public elements return
+      /vaadin-grid$|column|filter|sorter/.test(el.is); })); this._modifyingElements = false; } });
+    </script>
   </dom-module>
 </body>
 

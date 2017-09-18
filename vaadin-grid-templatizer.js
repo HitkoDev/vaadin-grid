@@ -1,7 +1,7 @@
-import '../polymer/polymer.js';
-import { Polymer } from '../polymer/lib/legacy/polymer-fn.js';
-import { Templatizer as Templatizer$0 } from '../polymer/lib/legacy/templatizer-behavior.js';
-import { Element } from '../polymer/polymer-element.js';
+import '../@polymer/polymer.js';
+import { Polymer } from '../@polymer/lib/legacy/polymer-fn.js';
+import { Templatizer as Templatizer$0 } from '../@polymer/lib/legacy/templatizer-behavior.js';
+import { Element } from '../@polymer/polymer-element.js';
 window.vaadin = window.vaadin || {};
 vaadin.elements = vaadin.elements || {};
 vaadin.elements.grid = vaadin.elements.grid || {};
@@ -71,7 +71,7 @@ vaadin.elements.grid.Templatizer = Polymer({
 
       this.templatize(this.template);
 
-      // TODO: hack to avoid: https://github.com/Polymer/polymer/issues/3307
+      // TODO: hack to avoid: https://github.com/@polymer/polymer/issues/3307
       this._parentProps = this._parentProps || {};
 
       // TODO: V1 only. For some reason, parent properties are not forwarded

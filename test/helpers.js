@@ -1,6 +1,6 @@
-import { DomApi, dom } from '../../polymer/lib/legacy/polymer.dom.js';
-import { Element } from '../../polymer/polymer-element.js';
-import { Base } from '../../polymer/polymer.js';
+import { DomApi, dom } from '../../@polymer/lib/legacy/polymer.dom.js';
+import { Element } from '../../@polymer/polymer-element.js';
+import { Base } from '../../@polymer/polymer.js';
 var firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var defaultCellWidth = 100;
 
